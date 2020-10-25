@@ -7,24 +7,23 @@
   :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
-  :default_tasks:
+  :default_task:
     - release
 
 :release_build:
-  :output: void_explorer.out
+  :output: void_shell
   :use_assembly: FALSE
 
 :environment:
 
 :extension:
-  :executable: .out
+  :executable: 
 
 :paths:
-  :test:
-  :release:
-    - ./example/**
   :source:
+    - ./example/**
     - ./source/**
+    - ./third_party/printf/*
 
   :libraries: []
 
@@ -33,11 +32,7 @@
   #  1) remove the trailing [] from the :common: section
   #  2) add entries to the :common: section (e.g. :test: has TEST defined)
   :common: &common_defines
-    - __SAMC21J18A__
   :test:
-    - *common_defines
-    - TEST
-  :test_preprocess:
     - *common_defines
     - TEST
   :release:

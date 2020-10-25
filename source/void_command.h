@@ -23,32 +23,51 @@
 *******************************************************************************/
 
 /*
- * void_shell.h
+ * void_command.h
  *
  * Created: 06/04/20
  * Author : Zachary Heylmun
  *
  */
 
-#ifndef VOID_SHELL_H
-#define VOID_SHELL_H
+#ifndef VOID_COMMAND_H
+#define VOID_COMMAND_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
-/**
- * \brief Function to get next input character for console
- *
- * To Be provided by console application
- * \return Negative if not available, or ASCII value from 0-127
- * 
- **/
-int8_t void_shell_get_char( void );
+typedef void ( *command_handler )( void );
 
-void void_shell_init( void );
+enum void_command_arg_type
+{
+	VOID_COMMAND_ARG_TYPE_INT,
+	VOID_COMMAND_ARG_TYPE_FLOAT,
+	VOID_COMMAND_ARG_TYPE_STRING,
+	VOID_COMMAND_ARG_TYPE_COUNT,
+};
 
-void void_shell_run( void );
+struct void_command_arg
+{
+	enum void_command_arg_type arg_type;
+	const char *               description;
+	bool                       mandatory;
+};
 
-void void_shell_clear( void );
+struct void_command_description
+{
+	const char *                   command_string;
+	command_handler                command;
+	const char *                   help_string;
+	const struct void_command_arg *args;
+	const uint8_t                  arg_count;
+};
 
-#endif // VOID_SHELL_H
+void void_command_init();
+
+bool void_command_register( const struct void_command_description *command );
+
+bool void_command_complete_command( char *in_out_string, uint16_t max_len );
+
+void void_command_handle_command( const char *command_string );
+
+#endif // VOID_COMMAND_H
