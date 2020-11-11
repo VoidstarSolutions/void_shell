@@ -23,37 +23,42 @@
 *******************************************************************************/
 
 /*
- * void_command.h
- *
- * Created: 06/04/20
+ * void_shell_utilities.c
+ s
+ * Created: 10/25/20
  * Author : Zachary Heylmun
- *
  */
 
-#ifndef VOID_COMMAND_H
-#define VOID_COMMAND_H
+#include "void_shell_utilities.h"
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <../third_party/printf/printf.h>
 
-typedef void ( *command_handler )( void );
+#include <string.h>
 
-struct void_command_description
+inline static void output_escape_sequence( const char *string )
 {
-	const char *           command_string;
-	const command_handler  command;
-	const char *           help_string;
-	const command_handler *sub_commands;
-};
 
-void void_command_init();
+	const char escape_sequence[] = { 27, '[' };
+	output( escape_sequence, 2 );
+	output( string, strlen( string ) );
+}
 
-bool void_command_register( const struct void_command_description *command );
+void output( const char *data, size_t length )
+{
+	for ( size_t i = 0; i != length; ++i )
+	{
+		_putchar( data[i] );
+	}
+}
 
-uint16_t void_command_complete_command( char *in_out_string, uint16_t max_len );
+void void_shell_start_of_line() { output_escape_sequence( "999D" ); }
 
-void void_command_handle_command( const char *command_string );
+void void_shell_erase_after_cursor() { output_escape_sequence( "K" ); }
 
-void void_command_print_context();
+void void_shell_left() { output_escape_sequence( "D" ); }
 
-#endif // VOID_COMMAND_H
+void void_shell_right() { output_escape_sequence( "C" ); }
+
+void void_shell_clear_text() { output_escape_sequence( "2J" ); }
+
+void void_shell_home() { output_escape_sequence( "H" ); }

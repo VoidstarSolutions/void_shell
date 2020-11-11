@@ -23,37 +23,31 @@
 *******************************************************************************/
 
 /*
- * void_command.h
+ * void_shell_utilities.h
  *
- * Created: 06/04/20
+ * Created: 10/25/20
  * Author : Zachary Heylmun
- *
  */
 
-#ifndef VOID_COMMAND_H
-#define VOID_COMMAND_H
+#ifndef VOID_SHELL_UTILITIES_H
+#define VOID_SHELL_UTILITIES_H
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <stddef.h>
 
-typedef void ( *command_handler )( void );
+void output( const char *data, size_t length );
 
-struct void_command_description
-{
-	const char *           command_string;
-	const command_handler  command;
-	const char *           help_string;
-	const command_handler *sub_commands;
-};
+void void_shell_start_of_line();
 
-void void_command_init();
+void void_shell_erase_after_cursor();
 
-bool void_command_register( const struct void_command_description *command );
+void void_shell_left();
 
-uint16_t void_command_complete_command( char *in_out_string, uint16_t max_len );
+void void_shell_right();
 
-void void_command_handle_command( const char *command_string );
+void void_shell_clear_text();
 
-void void_command_print_context();
+void void_shell_home();
 
-#endif // VOID_COMMAND_H
+#endif // VOID_SHELL_UTILITIES_H
+
+

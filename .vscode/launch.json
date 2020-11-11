@@ -8,10 +8,11 @@
             "name": "launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/demo/void_shell_demo",
+            "program": "${workspaceFolder}/build/pc_demo/void_shell_demo.elf",
             "MIMode": "lldb",
             "cwd": "${workspaceFolder}",
             "externalConsole": true,
+            "preLaunchTask": "CMakeBuild"
         }
     ]
 }

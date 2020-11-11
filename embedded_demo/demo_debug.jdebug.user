@@ -1,0 +1,30 @@
+
+
+Breakpoint=void_shell_utilities.c:43, State=BP_STATE_DISABLED
+Breakpoint=void_command.c:113, State=BP_STATE_DISABLED
+OpenDocument="void_command.c", FilePath="/Users/zheylmun/dev/voidstar/void_shell/source/void_command.c", Line=99
+OpenDocument="main.c", FilePath="/Users/zheylmun/dev/voidstar/void_shell/demo/main.c", Line=0
+OpenDocument="void_shell.c", FilePath="/Users/zheylmun/dev/voidstar/void_shell/source/void_shell.c", Line=179
+OpenDocument="SEGGER_RTT.c", FilePath="/Users/zheylmun/dev/voidstar/void_shell/third_party/RTT/SEGGER_RTT.c", Line=689
+OpenDocument="void_shell_utilities.c", FilePath="/Users/zheylmun/dev/voidstar/void_shell/source/void_shell_utilities.c", Line=9
+OpenDocument="demo_debug.jdebug", FilePath="/Users/zheylmun/dev/voidstar/void_shell/demo/demo_debug.jdebug", Line=0
+OpenToolbar="Debug", Floating=0, x=0, y=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=1, w=234, h=129, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=3, w=234, h=309, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=234, h=198, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Memory 1", DockArea=BOTTOM, x=2, y=0, w=570, h=581, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x0
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=250, h=201, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=2, w=250, h=225, FilterBarShown=1, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Code Profile", DockArea=LEFT, x=0, y=3, w=250, h=220, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, GroupByFiles=0, SortRespectsFilters=0, ParentRelativeLoad=0
+OpenWindow="Instruction Trace", DockArea=LEFT, x=0, y=1, w=250, h=117, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Power Sampling", DockArea=BOTTOM, x=0, y=0, w=264, h=581, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, UniformSampleSpacing=0
+OpenWindow="Console", DockArea=BOTTOM, x=1, y=0, w=444, h=581, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="RTOS", DockArea=RIGHT, x=0, y=0, w=234, h=127, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, Showing=""
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[852;100;100;100;152]
+TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Frame";"Source";"PC";"Return Address";"Stack Used"], ColWidths=[155;112;91;100;168;100]
+TableHeader="Code Profile", SortCol="File / Function", SortOrder="DESCENDING", VisibleCols=["File / Function";"Source Coverage";"Inst. Coverage";"Run Count";"Fetch Count";"Load"], ColWidths=[785;106;131;100;100;100]
+TableHeader="Power Sampling", SortCol="Index", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[162;337;224]
+TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[100;147;100;100]
+TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
+WatchedExpression="len", Window=Watched Data 1

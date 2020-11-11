@@ -1,0 +1,31 @@
+﻿---
+BasedOnStyle: LLVM
+BreakBeforeBraces: Allman
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
+AlignOperands: 'true'
+AlignTrailingComments: 'true'
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: 'false'
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLoopsOnASingleLine: 'false'
+BinPackArguments: false
+BinPackParameters: false
+ColumnLimit: '100'
+IndentWidth: '4'
+IndentCaseLabels: 'true'
+SortIncludes: 'true'
+SpaceAfterCStyleCast: 'true'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: ControlStatements
+SpacesInCStyleCastParentheses: 'false'
+SpacesInConditionalStatement: 'true'
+SpacesInParentheses: 'true'
+TabWidth: '4'
+UseTab: ForIndentation
+DerivePointerAlignment: 'false'
+PointerAlignment: Right
+
+...

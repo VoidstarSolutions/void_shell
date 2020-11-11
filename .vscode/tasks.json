@@ -2,26 +2,17 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "cppbuild",
-            "label": "Build App",
-            "command": "/usr/bin/clang",
-            "args": [
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
-            "options": {
-                "cwd": "/usr/bin"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
+            "type": "shell",
+            "label": "CMakeBuild",
+            "command": "zsh build.sh",
+            "args": [],
+            "options": {},
+            "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Generated task by Debugger"
+            "detail": "Run CMake"
         }
     ],
 }

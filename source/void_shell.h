@@ -27,7 +27,6 @@
  *
  * Created: 06/04/20
  * Author : Zachary Heylmun
- *
  */
 
 #ifndef VOID_SHELL_H
@@ -37,18 +36,25 @@
 #include <stdint.h>
 
 /**
- * \brief Function to get next input character for console
- *
- * To Be provided by console application
+ * \brief Function to get next input character for shell
+ * Must be provided by console application
  * \return Negative if not available, or ASCII value from 0-127
- * 
  **/
 int8_t void_shell_get_char( void );
 
+/**
+ * \brief Initialize the memories for shell
+ **/
 void void_shell_init( void );
 
+/**
+ * \brief Service CLI input
+ **/
 void void_shell_run( void );
 
+/**
+ * \brief Clear the console of text and reset to first line/column
+ **/
 void void_shell_clear( void );
 
 #endif // VOID_SHELL_H

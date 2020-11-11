@@ -1,9 +1,25 @@
-# CMakeLists files in this project can
-# refer to the root source directory of the project as ${HELLO_SOURCE_DIR} and
-# to the root binary directory of the project as ${HELLO_BINARY_DIR}.
 cmake_minimum_required (VERSION 3.15.0)
+
+set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+
 project (VOID_SHELL)
 
+add_compile_options(
+    -Wall 
+    -Wextra 
+    -pedantic 
+    -Werror
+    )
+
 add_subdirectory (third_party)
+
 add_subdirectory (source)
-add_subdirectory (demo)
+
+message( ${CMAKE_CXX_COMPILER_ID} )
+if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR  
+CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR  CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  add_subdirectory ( pc_demo )
+else()
+  add_subdirectory( embedded_demo )
+endif()
+
