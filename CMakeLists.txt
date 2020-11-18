@@ -11,13 +11,15 @@ add_compile_options(
     -Werror
     )
 
+
+
 add_subdirectory (third_party)
 
 add_subdirectory (source)
 
 message( ${CMAKE_CXX_COMPILER_ID} )
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR  
-CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR  CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+ CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   add_subdirectory ( pc_demo )
 else()
   add_subdirectory( embedded_demo )

@@ -21,7 +21,7 @@
 
 :paths:
   :source:
-    - ./demo/**
+    - ./embedded_demo/**
     - ./source/**
     - ./third_party/printf/*
     - ./third_party/RTT/*
@@ -88,7 +88,7 @@
     :executable: arm-none-eabi-gcc
     :arguments:
       - --specs=nosys.specs
-      - -T ./demo/link.ld
+      - -T ./embedded_demo/link.ld
       - -Xlinker 
       - -Map=build/artifacts/release/void_boot.map
       - --no-whole-file

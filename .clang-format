@@ -13,7 +13,7 @@ AllowShortIfStatementsOnASingleLine: 'false'
 AllowShortLoopsOnASingleLine: 'false'
 BinPackArguments: false
 BinPackParameters: false
-ColumnLimit: '100'
+ColumnLimit: '80'
 IndentWidth: '4'
 IndentCaseLabels: 'true'
 SortIncludes: 'true'
@@ -24,8 +24,8 @@ SpacesInCStyleCastParentheses: 'false'
 SpacesInConditionalStatement: 'true'
 SpacesInParentheses: 'true'
 TabWidth: '4'
-UseTab: ForIndentation
+UseTab: Never
 DerivePointerAlignment: 'false'
 PointerAlignment: Right
-
+ReflowComments: false
 ...
