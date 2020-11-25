@@ -38,11 +38,18 @@
 
 typedef void ( *command_handler )( void );
 
+/**
+ * Struct to define a new command.  Can contain a single function, or a multiple subcommands.
+ */
 struct void_command_description
 {
-	const char *           command_string;
-	const command_handler  command;
-	const char *           help_string;
+	/** console command string */
+	const char *command_string;
+	/** function called by command (null if command includes subcommands) */
+	const command_handler command;
+	/** Help string for command */
+	const char *help_string;
+	/** Array of subcommands (Must be null if command is not) */
 	const command_handler *sub_commands;
 };
 

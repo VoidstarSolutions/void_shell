@@ -13,6 +13,13 @@
                 "isDefault": true
             },
             "detail": "Run CMake"
+        },
+        {
+            "label": "Open Terminal",
+            "type": "shell",
+            "detail": "Handy to force VS Code to request permission to run in external terminal",
+            "command": "osascript -e 'tell application \"Terminal\"\ndo script \"echo hello\"\nend tell'",
+            "problemMatcher": []
         }
     ],
 }

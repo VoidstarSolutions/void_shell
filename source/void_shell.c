@@ -79,6 +79,7 @@ static void display_history_command( struct shell_data *shell )
 	void_shell_start_of_line();
 	void_shell_erase_after_cursor();
 	void_command_print_context();
+
 	struct command_history *command = &shell->previous_commands[shell->requested_command_index];
 	char *history_command_start     = &shell->shell_input_buffer[command->start_index];
 	char *current_command_start     = &shell->shell_input_buffer[shell->start_index];
@@ -152,7 +153,6 @@ static inline bool process_escape_sequence( struct shell_data *shell, char input
 		switch ( shell->escape_sequence_buffer[2] )
 		{
 			case 'A': /* Up Arrow */
-
 				shell->requested_command_index =
 				    ( VOID_SHELL_COMMAND_HISTORY_COUNT + shell->requested_command_index - 1 ) %
 				    VOID_SHELL_COMMAND_HISTORY_COUNT;
@@ -188,15 +188,16 @@ static inline bool process_escape_sequence( struct shell_data *shell, char input
 static inline void process_recieved_char( struct shell_data *shell, char input_char )
 {
 	size_t character_index = ( shell->start_index + shell->cursor_column ) % VOID_SHELL_BUFFER_SIZE;
-	if ( input_char == '\b' )
+	if ( input_char == '\b' || /* backspace */
+	     input_char == 0x7f /* delete (for Mac)*/ )
 	{
+		input_char = '\b';
 		if ( shell->cursor_column )
 		{
 			output( &input_char, 1 );
 			void_shell_erase_after_cursor();
 			--shell->cursor_column;
-			shell->line_length = shell->cursor_column;
-
+			shell->line_length                           = shell->cursor_column;
 			shell->shell_input_buffer[--character_index] = '\0';
 		}
 	}

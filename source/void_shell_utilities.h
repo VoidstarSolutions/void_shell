@@ -49,5 +49,3 @@ void void_shell_clear_text();
 void void_shell_home();
 
 #endif // VOID_SHELL_UTILITIES_H
-
-

@@ -22,9 +22,9 @@
 **
 *******************************************************************************/
 
-/*
- * void_shell.h
- *
+/**
+ * @file void_shell.h
+ * @brief Module providing shell functionality
  * Created: 06/04/20
  * Author : Zachary Heylmun
  */

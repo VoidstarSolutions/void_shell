@@ -11,8 +11,6 @@ add_compile_options(
     -Werror
     )
 
-
-
 add_subdirectory (third_party)
 
 add_subdirectory (source)
