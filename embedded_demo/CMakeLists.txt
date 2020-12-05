@@ -1,10 +1,14 @@
 
+set( CMAKE_SYSTEM_NAME          Generic )
+
+set( CMAKE_SYSTEM_PROCESSOR     ARM )
 
 add_executable (void_shell_embedded_demo main.c startup.c)
 
 set_target_properties(void_shell_embedded_demo PROPERTIES OUTPUT_NAME void_shell_demo.elf)
 
 target_compile_options(void_shell_embedded_demo PUBLIC 
+-mthumb
 -mcpu=cortex-m0plus
 -mtune=cortex-m0plus
 -fdata-sections
