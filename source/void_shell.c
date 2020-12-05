@@ -116,14 +116,13 @@ static inline void process_command( struct shell_data *shell )
 {
 	// new line recieved echo a line separator
 	output( "\n", 1 );
+	void_shell_start_of_line();
+	void_shell_erase_after_cursor();
 	if ( shell->line_length == 0 )
 	{
 		void_command_print_context();
 		return;
 	}
-
-	void_shell_start_of_line();
-	void_shell_erase_after_cursor();
 	// null terminate the command
 	shell->shell_input_buffer[shell->start_index + shell->line_length] = '\0';
 	char *command_start = &shell->shell_input_buffer[shell->start_index];
