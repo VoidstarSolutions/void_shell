@@ -35,12 +35,12 @@
 
 #include <string.h>
 
-inline static void output_escape_sequence( const char *string )
+inline static void output_escape_sequence( const char *sequence )
 {
 
 	const char escape_sequence[] = { 27, '[' };
 	output( escape_sequence, 2 );
-	output( string, strlen( string ) );
+	output( sequence, strlen( sequence ) );
 }
 
 void output( const char *data, size_t length )

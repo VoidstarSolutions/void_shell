@@ -1,7 +1,4 @@
-
-set( CMAKE_SYSTEM_NAME          Generic )
-
-set( CMAKE_SYSTEM_PROCESSOR     ARM )
+cmake_minimum_required (VERSION 3.15.0)
 
 add_executable (void_shell_embedded_demo main.c startup.c)
 
@@ -11,26 +8,15 @@ target_compile_options(void_shell_embedded_demo PUBLIC
 -mthumb
 -mcpu=cortex-m0plus
 -mtune=cortex-m0plus
--fdata-sections
--ffunction-sections
--fno-builtin
--flto
--O3
 )
 
 target_link_options(void_shell_embedded_demo PUBLIC
--Wl,-e_start
+-Wl,-eReset_Handler
 -mcpu=cortex-m0plus
 -mtune=cortex-m0plus
 --specs=nosys.specs
 -mthumb
--fno-builtin
--fdata-sections
--ffunction-sections
--Xlinker -Map=output.map
--Wl,-flto
 -Wl,-T${CMAKE_CURRENT_SOURCE_DIR}/link.ld
--O
 )
 
-target_link_libraries (void_shell_embedded_demo LINK_PUBLIC void_shell printf rtt)
+target_link_libraries(void_shell_embedded_demo PUBLIC void_shell rtt)
