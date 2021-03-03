@@ -33,11 +33,11 @@
 
 #include <../third_party/printf/printf.h>
 
+#include <stdint.h>
 #include <string.h>
 
 inline static void output_escape_sequence( const char *sequence )
 {
-
 	const char escape_sequence[] = { 27, '[' };
 	output( escape_sequence, 2 );
 	output( sequence, strlen( sequence ) );
@@ -62,3 +62,29 @@ void void_shell_right() { output_escape_sequence( "C" ); }
 void void_shell_clear_text() { output_escape_sequence( "2J" ); }
 
 void void_shell_home() { output_escape_sequence( "H" ); }
+
+void void_shell_reset_format() { output_escape_sequence( "0m" ); }
+
+void void_shell_more_bold() { output_escape_sequence( "1m" ); }
+
+void void_shell_less_bold() { output_escape_sequence( "2m" ); }
+
+void void_shell_underline() { output_escape_sequence( "4m" ); }
+
+void void_shell_blink() { output_escape_sequence( "5m" ); }
+
+void void_shell_background_color( enum void_shell_color color )
+{
+	char           color_sequence[4];
+	const unsigned color_code = (unsigned) color + 40u;
+	snprintf( color_sequence, 4, "%um", color_code );
+	output_escape_sequence( color_sequence );
+}
+
+void void_shell_text_color( enum void_shell_color color )
+{
+	char           color_sequence[4];
+	const unsigned color_code = (unsigned) color + 30u;
+	snprintf( color_sequence, 4, "%um", color_code );
+	output_escape_sequence( color_sequence );
+}

@@ -61,6 +61,6 @@ uint16_t void_command_complete_command( char *in_out_string, uint16_t max_len );
 
 void void_command_handle_command( const char *command_string );
 
-void void_command_print_context();
+void void_command_print_context( bool context_active );
 
 #endif // VOID_COMMAND_H

@@ -55,6 +55,6 @@ void void_shell_run( void );
 /**
  * \brief Clear the console of text and reset to first line/column
  **/
-void void_shell_clear( void );
+void void_shell_clear_console( void );
 
 #endif // VOID_SHELL_H

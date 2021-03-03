@@ -32,12 +32,14 @@
 
 #include "void_command.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
 #include <printf.h>
 
 #include "void_shell.h"
+#include "void_shell_utilities.h"
 
 #ifndef VOID_COMMAND_MAX_COMMANDS
 #define VOID_COMMAND_MAX_COMMANDS ( (uint16_t) 32 )
@@ -55,7 +57,7 @@ static struct void_command_data void_command_instance;
 static void help_command( void )
 {
 	struct void_command_data *command = &void_command_instance;
-	for ( uint16_t i = 0; i != command->registered_command_count; ++i )
+	for ( uint16_t i = 1; i < command->registered_command_count; ++i )
 	{
 		const struct void_command_description *desc = command->registered_commands[i];
 		printf( "%s\r\n  ", desc->command_string );
@@ -70,7 +72,7 @@ static const struct void_command_description help_command_description = {
     .sub_commands   = 0,
 };
 
-static void clear_command( void ) { void_shell_clear(); }
+static void clear_command( void ) { void_shell_clear_console(); }
 
 static const struct void_command_description clear_command_description = {
     .command_string = "clear",
@@ -85,11 +87,16 @@ void void_command_init()
 	command->active_modal_command     = NULL;
 	void_command_register( &help_command_description );
 	void_command_register( &clear_command_description );
-	printf( " _    _  _____  _____ ______       _______ _     _ _______              \r\n" );
-	printf( "  \\  /  |     |   |   |     \\      |______ |_____| |______ |      |     \r\n" );
-	printf( "   \\/   |_____| __|__ |_____/      ______| |     | |______ |_____ |_____\r\n\r\n" );
+	void_shell_text_color( COLOR_GREEN );
 
-	void_command_print_context();
+	void_shell_more_bold();
+	void_shell_more_bold();
+	printf( "  _    _  _____  _____ ______       _______ _     _ _______               \r\n" );
+	printf( "   \\  /  |     |   |   |     \\      |______ |_____| |______ |      |      \r\n" );
+	printf( "    \\/   |_____| __|__ |_____/      ______| |     | |______ |_____ |_____ \r\n\r\n" );
+
+	void_shell_reset_format();
+	void_command_print_context(true);
 }
 
 bool void_command_register( const struct void_command_description *description )
@@ -169,15 +176,19 @@ void void_command_handle_command( const char *command_string )
 	{
 		printf( "Command not recognized.\r\n	Try \"help\"\r\n" );
 	}
-	void_command_print_context();
+	void_command_print_context(true);
 }
 
-void void_command_print_context()
+void void_command_print_context( bool context_active )
 {
 	struct void_command_data *command = &void_command_instance;
+	void_shell_text_color( COLOR_YELLOW );
 	if ( command->active_modal_command )
 	{
 		printf( "%s", command->active_modal_command->command_string );
 	}
+	if ( context_active )
+		void_shell_blink();
 	printf( "$>" );
+	void_shell_reset_format();
 }

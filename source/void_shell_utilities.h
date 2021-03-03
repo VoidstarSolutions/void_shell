@@ -34,18 +34,44 @@
 
 #include <stddef.h>
 
+enum void_shell_color
+{
+	COLOR_BLACK = 0,
+	COLOR_RED,
+	COLOR_GREEN,
+	COLOR_YELLOW,
+	COLOR_BLUE,
+	COLOR_MAGENTA,
+	COLOR_CYAN,
+	COLOR_WHITE,
+};
+
 void output( const char *data, size_t length );
 
-void void_shell_start_of_line();
+void void_shell_start_of_line( void );
 
-void void_shell_erase_after_cursor();
+void void_shell_erase_after_cursor( void );
 
-void void_shell_left();
+void void_shell_left( void );
 
-void void_shell_right();
+void void_shell_right( void );
 
-void void_shell_clear_text();
+void void_shell_clear_text( void );
 
-void void_shell_home();
+void void_shell_home( void );
+
+void void_shell_reset_format( void );
+
+void void_shell_more_bold( void );
+
+void void_shell_less_bold( void );
+
+void void_shell_underline( void );
+
+void void_shell_blink( void );
+
+void void_shell_text_color( enum void_shell_color color );
+
+void void_shell_background_color( enum void_shell_color );
 
 #endif // VOID_SHELL_UTILITIES_H

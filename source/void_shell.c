@@ -78,7 +78,7 @@ static void display_history_command( struct shell_data *shell )
 {
 	void_shell_start_of_line();
 	void_shell_erase_after_cursor();
-	void_command_print_context();
+	void_command_print_context(true);
 
 	struct command_history *command = &shell->previous_commands[shell->requested_command_index];
 	char *history_command_start     = &shell->shell_input_buffer[command->start_index];
@@ -100,7 +100,7 @@ static inline void attempt_autocomplete( struct shell_data *shell )
 	if ( updated_len != 0 )
 	{
 		void_shell_start_of_line();
-		void_command_print_context();
+		void_command_print_context(true);
 		shell->cursor_column = updated_len;
 		shell->line_length   = updated_len;
 		output( &shell->shell_input_buffer[shell->start_index], updated_len );
@@ -114,18 +114,24 @@ static inline void attempt_autocomplete( struct shell_data *shell )
 
 static inline void process_command( struct shell_data *shell )
 {
+	// null terminate the command
+	shell->shell_input_buffer[shell->start_index + shell->line_length] = '\0';
+	char *command_start = &shell->shell_input_buffer[shell->start_index];
+	void_shell_start_of_line();
+	void_shell_erase_after_cursor();
+	void_command_print_context(false);
+	printf(command_start);
+
 	// new line recieved echo a line separator
 	output( "\n", 1 );
 	void_shell_start_of_line();
 	void_shell_erase_after_cursor();
 	if ( shell->line_length == 0 )
 	{
-		void_command_print_context();
+		void_command_print_context(true);
 		return;
 	}
-	// null terminate the command
-	shell->shell_input_buffer[shell->start_index + shell->line_length] = '\0';
-	char *command_start = &shell->shell_input_buffer[shell->start_index];
+	
 	void_command_handle_command( command_start );
 	shell->previous_commands[shell->command_index].start_index = shell->start_index;
 	shell->previous_commands[shell->command_index].length      = shell->line_length;
@@ -227,7 +233,7 @@ void void_shell_init( void )
 	        0,
 	        sizeof( struct command_history ) * VOID_SHELL_COMMAND_HISTORY_COUNT );
 
-	void_shell_clear();
+	void_shell_clear_console();
 	void_command_init();
 }
 
@@ -268,7 +274,7 @@ void void_shell_run( void )
 	}
 }
 
-void void_shell_clear()
+void void_shell_clear_console()
 {
 	struct shell_data *shell = &static_shell;
 	shell->cursor_column     = 0;
@@ -276,3 +282,4 @@ void void_shell_clear()
 	void_shell_clear_text();
 	void_shell_home();
 }
+
