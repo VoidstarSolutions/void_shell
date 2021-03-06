@@ -1,6 +1,6 @@
-/*******************************************************************************
+/*==============================================================================
 **
-** Copyright (c) 2020 Voidstar Solutions
+** Copyright (c) 2021 Voidstar Solutions
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
 ** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ** SOFTWARE.
 **
-*******************************************************************************/
+==============================================================================*/
 
 /*
  * void_command.h
@@ -53,14 +53,14 @@ struct void_command_description
 	const command_handler *sub_commands;
 };
 
-void void_command_init();
+void vc_init();
 
-bool void_command_register( const struct void_command_description *command );
+bool vc_register( const struct void_command_description *command );
 
-uint16_t void_command_complete_command( char *in_out_string, uint16_t max_len );
+uint16_t vc_complete_command( char *in_out_string, uint16_t max_len );
 
-void void_command_handle_command( const char *command_string );
+void vc_handle_command( const char *command_string );
 
-void void_command_print_context( bool context_active );
+void vc_print_context( bool context_active );
 
 #endif // VOID_COMMAND_H

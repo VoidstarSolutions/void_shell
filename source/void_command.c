@@ -1,6 +1,6 @@
-/*******************************************************************************
+/*==============================================================================
 **
-** Copyright (c) 2020 Voidstar Solutions
+** Copyright (c) 2021 Voidstar Solutions
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
 ** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ** SOFTWARE.
 **
-*******************************************************************************/
+==============================================================================*/
 
 /**
  * @file void_command.h
@@ -80,13 +80,13 @@ static const struct void_command_description clear_command_description = {
     .help_string    = "Clear the terminal",
     .sub_commands   = NULL };
 
-void void_command_init()
+void vc_init()
 {
 	struct void_command_data *command = &void_command_instance;
 	command->registered_command_count = 0;
 	command->active_modal_command     = NULL;
-	void_command_register( &help_command_description );
-	void_command_register( &clear_command_description );
+	vc_register( &help_command_description );
+	vc_register( &clear_command_description );
 	 vs_text_color( COLOR_GREEN );
 
 	 vs_more_bold();
@@ -96,10 +96,10 @@ void void_command_init()
 	printf( "    \\/   |_____| __|__ |_____/      ______| |     | |______ |_____ |_____ \r\n\r\n" );
 
 	 vs_reset_format();
-	void_command_print_context(true);
+	vc_print_context(true);
 }
 
-bool void_command_register( const struct void_command_description *description )
+bool vc_register( const struct void_command_description *description )
 {
 	struct void_command_data *command = &void_command_instance;
 	if ( command->registered_command_count == VOID_COMMAND_MAX_COMMANDS )
@@ -111,7 +111,7 @@ bool void_command_register( const struct void_command_description *description )
 	return true;
 }
 
-uint16_t void_command_complete_command( char *in_out_string, uint16_t max_len )
+uint16_t vc_complete_command( char *in_out_string, uint16_t max_len )
 {
 	(void) ( max_len );
 	struct void_command_data *command     = &void_command_instance;
@@ -157,7 +157,7 @@ uint16_t void_command_complete_command( char *in_out_string, uint16_t max_len )
 	return 0;
 }
 
-void void_command_handle_command( const char *command_string )
+void vc_handle_command( const char *command_string )
 {
 	bool                      command_found = false;
 	struct void_command_data *command       = &void_command_instance;
@@ -176,10 +176,10 @@ void void_command_handle_command( const char *command_string )
 	{
 		printf( "Command not recognized.\r\n	Try \"help\"\r\n" );
 	}
-	void_command_print_context(true);
+	vc_print_context(true);
 }
 
-void void_command_print_context( bool context_active )
+void vc_print_context( bool context_active )
 {
 	struct void_command_data *command = &void_command_instance;
 	 vs_text_color( COLOR_YELLOW );

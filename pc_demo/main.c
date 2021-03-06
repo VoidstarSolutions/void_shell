@@ -23,7 +23,7 @@ int main()
 {
 	system( "/bin/stty raw" );
 	void_shell_init();
-	void_command_register( &exit_command_description );
+	vc_register( &exit_command_description );
 	while ( run_shell )
 	{
 		void_shell_run();

@@ -1,6 +1,6 @@
-/*******************************************************************************
+/*==============================================================================
 **
-** Copyright (c) 2020 Voidstar Solutions
+** Copyright (c) 2021 Voidstar Solutions
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,10 @@
 ** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ** SOFTWARE.
 **
-*******************************************************************************/
+==============================================================================*/
 
-/*
- * vs.h
+/**
+ * void_shell.c
  *
  * Created: 06/04/20
  * Author : Zachary Heylmun
@@ -78,12 +78,12 @@ static void display_history_command( struct vs_shell_data *shell )
 {
 	vs_start_of_line();
 	vs_erase_after_cursor();
-	void_command_print_context( true );
+	vc_print_context( true );
 
 	struct command_history *command = &shell->previous_commands[shell->requested_command_index];
 	char *history_command_start     = &shell->shell_input_buffer[command->start_index];
 	char *current_command_start     = &shell->shell_input_buffer[shell->start_index];
-	memset( current_command_start, '\0', shell->line_length );
+	memset( current_command_start+command->length, '\0', shell->line_length );
 	// TODO: Handle commands wrapping buffer
 	vs_output( history_command_start, command->length );
 	memcpy( current_command_start, history_command_start, command->length );
@@ -96,11 +96,11 @@ static inline void attempt_autocomplete( struct vs_shell_data *shell )
 	(void) ( shell );
 	char *command_string = &shell->shell_input_buffer[shell->start_index];
 
-	uint16_t updated_len = void_command_complete_command( command_string, 255 );
+	uint16_t updated_len = vc_complete_command( command_string, 255 );
 	if ( updated_len != 0 )
 	{
 		vs_start_of_line();
-		void_command_print_context( true );
+		vc_print_context( true );
 		shell->cursor_column = updated_len;
 		shell->line_length   = updated_len;
 		vs_output( &shell->shell_input_buffer[shell->start_index], updated_len );
@@ -119,7 +119,7 @@ static inline void process_command( struct vs_shell_data *shell )
 	char *command_start = &shell->shell_input_buffer[shell->start_index];
 	vs_start_of_line();
 	vs_erase_after_cursor();
-	void_command_print_context( false );
+	vc_print_context( false );
 	printf( command_start );
 
 	// new line recieved echo a line separator
@@ -128,11 +128,11 @@ static inline void process_command( struct vs_shell_data *shell )
 	vs_erase_after_cursor();
 	if ( shell->line_length == 0 )
 	{
-		void_command_print_context( true );
+		vc_print_context( true );
 		return;
 	}
 
-	void_command_handle_command( command_start );
+	vc_handle_command( command_start );
 	shell->previous_commands[shell->command_index].start_index = shell->start_index;
 	shell->previous_commands[shell->command_index].length      = shell->line_length;
 	shell->command_index           = ( shell->command_index + 1 ) % VS_COMMAND_HISTORY_COUNT;
@@ -233,7 +233,7 @@ void vs_init( void )
 	    shell->previous_commands, 0, sizeof( struct command_history ) * VS_COMMAND_HISTORY_COUNT );
 
 	vs_clear_console();
-	void_command_init();
+	vc_init();
 }
 
 void vs_run( void )

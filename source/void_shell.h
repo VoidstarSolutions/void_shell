@@ -1,6 +1,6 @@
-/*******************************************************************************
+/*==============================================================================
 **
-** Copyright (c) 2020 Voidstar Solutions
+** Copyright (c) 2021 Voidstar Solutions
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -20,13 +20,13 @@
 ** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ** SOFTWARE.
 **
-*******************************************************************************/
+==============================================================================*/
 
 /**
- * @file vs.h
- * @brief Module providing shell functionality
- * Created: 06/04/20
- * Author : Zachary Heylmun
+ * \file void_shell.h
+ * \brief Module providing shell functionality
+ * \date created: 06/04/20
+ * \author Zachary Heylmun
  */
 
 #ifndef VOID_SHELL_H

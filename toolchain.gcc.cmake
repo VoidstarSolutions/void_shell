@@ -20,4 +20,3 @@ SET(CMAKE_ASM_COMPILER_TARGET ${TARGET})
 SET(CMAKE_ASM_COMPILER arm-none-eabi-as)
 
 string(APPEND CMAKE_C_FLAGS_INIT " -mcpu=cortex-m0plus -mtune=cortex-m0plus -mthumb")
-#string(APPEND CMAKE_C_LINK_FLAGS "   -eReset_Handler")
