@@ -23,7 +23,7 @@
 *******************************************************************************/
 
 /*
- * void_shell_utilities.h
+ * vs_utilities.h
  *
  * Created: 10/25/20
  * Author : Zachary Heylmun
@@ -34,7 +34,7 @@
 
 #include <stddef.h>
 
-enum void_shell_color
+enum vs_color
 {
 	COLOR_BLACK = 0,
 	COLOR_RED,
@@ -46,32 +46,32 @@ enum void_shell_color
 	COLOR_WHITE,
 };
 
-void output( const char *data, size_t length );
+void vs_output( const char *data, size_t length );
 
-void void_shell_start_of_line( void );
+void vs_start_of_line( void );
 
-void void_shell_erase_after_cursor( void );
+void vs_erase_after_cursor( void );
 
-void void_shell_left( void );
+void vs_left( void );
 
-void void_shell_right( void );
+void vs_right( void );
 
-void void_shell_clear_text( void );
+void vs_clear_text( void );
 
-void void_shell_home( void );
+void vs_home( void );
 
-void void_shell_reset_format( void );
+void vs_reset_format( void );
 
-void void_shell_more_bold( void );
+void vs_more_bold( void );
 
-void void_shell_less_bold( void );
+void vs_less_bold( void );
 
-void void_shell_underline( void );
+void vs_underline( void );
 
-void void_shell_blink( void );
+void vs_blink( void );
 
-void void_shell_text_color( enum void_shell_color color );
+void vs_text_color( enum vs_color color );
 
-void void_shell_background_color( enum void_shell_color );
+void vs_background_color( enum vs_color );
 
-#endif // VOID_SHELL_UTILITIES_H
+#endif // vs_UTILITIES_H

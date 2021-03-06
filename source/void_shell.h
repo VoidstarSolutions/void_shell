@@ -23,7 +23,7 @@
 *******************************************************************************/
 
 /**
- * @file void_shell.h
+ * @file vs.h
  * @brief Module providing shell functionality
  * Created: 06/04/20
  * Author : Zachary Heylmun
@@ -40,21 +40,21 @@
  * Must be provided by console application
  * \return Negative if not available, or ASCII value from 0-127
  **/
-int8_t void_shell_get_char( void );
+int8_t vs_get_char( void );
 
 /**
  * \brief Initialize the memories for shell
  **/
-void void_shell_init( void );
+void vs_init( void );
 
 /**
  * \brief Service CLI input
  **/
-void void_shell_run( void );
+void vs_run( void );
 
 /**
  * \brief Clear the console of text and reset to first line/column
  **/
-void void_shell_clear_console( void );
+void vs_clear_console( void );
 
-#endif // VOID_SHELL_H
+#endif // vs_H

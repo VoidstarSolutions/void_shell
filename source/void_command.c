@@ -22,8 +22,8 @@
 **
 *******************************************************************************/
 
-/*
- * void_command.h
+/**
+ * @file void_command.h
  *
  * Created: 06/04/20
  * Author : Zachary Heylmun
@@ -72,7 +72,7 @@ static const struct void_command_description help_command_description = {
     .sub_commands   = 0,
 };
 
-static void clear_command( void ) { void_shell_clear_console(); }
+static void clear_command( void ) {  vs_clear_console(); }
 
 static const struct void_command_description clear_command_description = {
     .command_string = "clear",
@@ -87,15 +87,15 @@ void void_command_init()
 	command->active_modal_command     = NULL;
 	void_command_register( &help_command_description );
 	void_command_register( &clear_command_description );
-	void_shell_text_color( COLOR_GREEN );
+	 vs_text_color( COLOR_GREEN );
 
-	void_shell_more_bold();
-	void_shell_more_bold();
+	 vs_more_bold();
+	 vs_more_bold();
 	printf( "  _    _  _____  _____ ______       _______ _     _ _______               \r\n" );
 	printf( "   \\  /  |     |   |   |     \\      |______ |_____| |______ |      |      \r\n" );
 	printf( "    \\/   |_____| __|__ |_____/      ______| |     | |______ |_____ |_____ \r\n\r\n" );
 
-	void_shell_reset_format();
+	 vs_reset_format();
 	void_command_print_context(true);
 }
 
@@ -182,13 +182,13 @@ void void_command_handle_command( const char *command_string )
 void void_command_print_context( bool context_active )
 {
 	struct void_command_data *command = &void_command_instance;
-	void_shell_text_color( COLOR_YELLOW );
+	 vs_text_color( COLOR_YELLOW );
 	if ( command->active_modal_command )
 	{
 		printf( "%s", command->active_modal_command->command_string );
 	}
 	if ( context_active )
-		void_shell_blink();
+		 vs_blink();
 	printf( "$>" );
-	void_shell_reset_format();
+	 vs_reset_format();
 }

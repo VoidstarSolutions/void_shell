@@ -8,6 +8,8 @@ set( CMAKE_SYSTEM_PROCESSOR arm )
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
+set(EMBEDDED_COMPILER "arm-none-eabi-gcc")
+
 # GCC target triple
 SET(TARGET arm-arm-none-eabi)
 

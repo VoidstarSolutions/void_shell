@@ -23,7 +23,7 @@
 *******************************************************************************/
 
 /*
- * void_shell.h
+ * vs.h
  *
  * Created: 06/04/20
  * Author : Zachary Heylmun
@@ -40,17 +40,17 @@
 #include "void_command.h"
 #include "void_shell_utilities.h"
 
-#ifndef VOID_SHELL_ESCAPE_SEQUENCE_BUFFER_SIZE
-#define VOID_SHELL_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 8 )
+#ifndef VS_ESCAPE_SEQUENCE_BUFFER_SIZE
+#define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 8 )
 #endif
 
-#ifndef VOID_SHELL_BUFFER_SIZE
-#define VOID_SHELL_BUFFER_SIZE ( (uint16_t) 512 )
-#endif // VOID_SHELL_BUFFER_SIZE
+#ifndef VS_BUFFER_SIZE
+#define VS_BUFFER_SIZE ( (unsigned) 512 )
+#endif // vs_BUFFER_SIZE
 
-#ifndef VOID_SHELL_COMMAND_HISTORY_COUNT
-#define VOID_SHELL_COMMAND_HISTORY_COUNT ( (uint8_t) 8 )
-#endif // VOID_SHELL_COMMAND_HISTORY_COUNT
+#ifndef VS_COMMAND_HISTORY_COUNT
+#define VS_COMMAND_HISTORY_COUNT ( (uint8_t) 8 )
+#endif // vs_COMMAND_HISTORY_COUNT
 
 struct command_history
 {
@@ -58,7 +58,7 @@ struct command_history
 	size_t length;
 };
 
-struct shell_data
+struct vs_shell_data
 {
 	volatile size_t        start_index;
 	volatile size_t        line_length;
@@ -66,32 +66,32 @@ struct shell_data
 	volatile size_t        cursor_column;
 	uint8_t                escape_sequence_index;
 	char                   escape_sequence_buffer[3];
-	char                   shell_input_buffer[VOID_SHELL_BUFFER_SIZE];
+	char                   shell_input_buffer[VS_BUFFER_SIZE];
 	uint8_t                command_index;
 	uint8_t                requested_command_index;
-	struct command_history previous_commands[VOID_SHELL_COMMAND_HISTORY_COUNT];
+	struct command_history previous_commands[VS_COMMAND_HISTORY_COUNT];
 };
 
-static struct shell_data static_shell;
+static struct vs_shell_data static_shell;
 
-static void display_history_command( struct shell_data *shell )
+static void display_history_command( struct vs_shell_data *shell )
 {
-	void_shell_start_of_line();
-	void_shell_erase_after_cursor();
-	void_command_print_context(true);
+	vs_start_of_line();
+	vs_erase_after_cursor();
+	void_command_print_context( true );
 
 	struct command_history *command = &shell->previous_commands[shell->requested_command_index];
 	char *history_command_start     = &shell->shell_input_buffer[command->start_index];
 	char *current_command_start     = &shell->shell_input_buffer[shell->start_index];
-
+	memset( current_command_start, '\0', shell->line_length );
 	// TODO: Handle commands wrapping buffer
-	output( history_command_start, command->length );
+	vs_output( history_command_start, command->length );
 	memcpy( current_command_start, history_command_start, command->length );
 	shell->cursor_column = command->length;
 	shell->line_length   = command->length;
 }
 
-static inline void attempt_autocomplete( struct shell_data *shell )
+static inline void attempt_autocomplete( struct vs_shell_data *shell )
 {
 	(void) ( shell );
 	char *command_string = &shell->shell_input_buffer[shell->start_index];
@@ -99,52 +99,52 @@ static inline void attempt_autocomplete( struct shell_data *shell )
 	uint16_t updated_len = void_command_complete_command( command_string, 255 );
 	if ( updated_len != 0 )
 	{
-		void_shell_start_of_line();
-		void_command_print_context(true);
+		vs_start_of_line();
+		void_command_print_context( true );
 		shell->cursor_column = updated_len;
 		shell->line_length   = updated_len;
-		output( &shell->shell_input_buffer[shell->start_index], updated_len );
+		vs_output( &shell->shell_input_buffer[shell->start_index], updated_len );
 	}
 	else
 	{
 		char bel = 7;
-		output( &bel, 1 );
+		vs_output( &bel, 1 );
 	}
 }
 
-static inline void process_command( struct shell_data *shell )
+static inline void process_command( struct vs_shell_data *shell )
 {
 	// null terminate the command
 	shell->shell_input_buffer[shell->start_index + shell->line_length] = '\0';
 	char *command_start = &shell->shell_input_buffer[shell->start_index];
-	void_shell_start_of_line();
-	void_shell_erase_after_cursor();
-	void_command_print_context(false);
-	printf(command_start);
+	vs_start_of_line();
+	vs_erase_after_cursor();
+	void_command_print_context( false );
+	printf( command_start );
 
 	// new line recieved echo a line separator
-	output( "\n", 1 );
-	void_shell_start_of_line();
-	void_shell_erase_after_cursor();
+	vs_output( "\n", 1 );
+	vs_start_of_line();
+	vs_erase_after_cursor();
 	if ( shell->line_length == 0 )
 	{
-		void_command_print_context(true);
+		void_command_print_context( true );
 		return;
 	}
-	
+
 	void_command_handle_command( command_start );
 	shell->previous_commands[shell->command_index].start_index = shell->start_index;
 	shell->previous_commands[shell->command_index].length      = shell->line_length;
-	shell->command_index = ( shell->command_index + 1 ) % VOID_SHELL_COMMAND_HISTORY_COUNT;
+	shell->command_index           = ( shell->command_index + 1 ) % VS_COMMAND_HISTORY_COUNT;
 	shell->requested_command_index = shell->command_index;
 	shell->start_index =
-	    ( shell->start_index + shell->line_length ) % VOID_SHELL_BUFFER_SIZE; /* Wrap if needed */
+	    ( shell->start_index + shell->line_length ) % VS_BUFFER_SIZE; /* Wrap if needed */
 	shell->cursor_column = 0;
 	shell->line_length   = 0;
 	++shell->cursor_line;
 }
 
-static inline bool process_escape_sequence( struct shell_data *shell, char input_char )
+static inline bool process_escape_sequence( struct vs_shell_data *shell, char input_char )
 {
 	shell->escape_sequence_buffer[shell->escape_sequence_index++] = input_char;
 	if ( shell->escape_sequence_index == 2 && shell->escape_sequence_buffer[1] != '[' )
@@ -159,26 +159,26 @@ static inline bool process_escape_sequence( struct shell_data *shell, char input
 		{
 			case 'A': /* Up Arrow */
 				shell->requested_command_index =
-				    ( VOID_SHELL_COMMAND_HISTORY_COUNT + shell->requested_command_index - 1 ) %
-				    VOID_SHELL_COMMAND_HISTORY_COUNT;
+				    ( VS_COMMAND_HISTORY_COUNT + shell->requested_command_index - 1 ) %
+				    VS_COMMAND_HISTORY_COUNT;
 				display_history_command( shell );
 				break;
 			case 'B': /* Down Arrow */
 				shell->requested_command_index =
-				    ( shell->requested_command_index + 1 ) % VOID_SHELL_COMMAND_HISTORY_COUNT;
+				    ( shell->requested_command_index + 1 ) % VS_COMMAND_HISTORY_COUNT;
 				display_history_command( shell );
 				break;
 			case 'C': /* Right Arrow */
 				if ( shell->cursor_column < shell->line_length )
 				{
-					void_shell_right();
+					vs_right();
 					++shell->cursor_column;
 				}
 				break;
 			case 'D': /* Left Arrow */
 				if ( shell->cursor_column > 0 )
 				{
-					void_shell_left();
+					vs_left();
 					--shell->cursor_column;
 				}
 				break;
@@ -190,17 +190,17 @@ static inline bool process_escape_sequence( struct shell_data *shell, char input
 	return true;
 }
 
-static inline void process_recieved_char( struct shell_data *shell, char input_char )
+static inline void process_recieved_char( struct vs_shell_data *shell, char input_char )
 {
-	size_t character_index = ( shell->start_index + shell->cursor_column ) % VOID_SHELL_BUFFER_SIZE;
+	size_t character_index = ( shell->start_index + shell->cursor_column ) % VS_BUFFER_SIZE;
 	if ( input_char == '\b' || /* backspace */
 	     input_char == 0x7f /* delete (for Mac)*/ )
 	{
 		input_char = '\b';
 		if ( shell->cursor_column )
 		{
-			output( &input_char, 1 );
-			void_shell_erase_after_cursor();
+			vs_output( &input_char, 1 );
+			vs_erase_after_cursor();
 			--shell->cursor_column;
 			shell->line_length                           = shell->cursor_column;
 			shell->shell_input_buffer[--character_index] = '\0';
@@ -208,7 +208,7 @@ static inline void process_recieved_char( struct shell_data *shell, char input_c
 	}
 	else
 	{
-		output( &input_char, 1 );
+		vs_output( &input_char, 1 );
 		shell->shell_input_buffer[character_index] = input_char;
 		++shell->cursor_column;
 		if ( shell->cursor_column > shell->line_length )
@@ -218,9 +218,9 @@ static inline void process_recieved_char( struct shell_data *shell, char input_c
 	}
 }
 
-void void_shell_init( void )
+void vs_init( void )
 {
-	struct shell_data *shell       = &static_shell;
+	struct vs_shell_data *shell    = &static_shell;
 	shell->start_index             = 0;
 	shell->line_length             = 0;
 	shell->cursor_line             = 1;
@@ -228,20 +228,19 @@ void void_shell_init( void )
 	shell->escape_sequence_index   = 0;
 	shell->command_index           = 0;
 	shell->requested_command_index = 0;
-	memset( shell->shell_input_buffer, 0, VOID_SHELL_BUFFER_SIZE );
-	memset( shell->previous_commands,
-	        0,
-	        sizeof( struct command_history ) * VOID_SHELL_COMMAND_HISTORY_COUNT );
+	memset( shell->shell_input_buffer, 0, VS_BUFFER_SIZE );
+	memset(
+	    shell->previous_commands, 0, sizeof( struct command_history ) * VS_COMMAND_HISTORY_COUNT );
 
-	void_shell_clear_console();
+	vs_clear_console();
 	void_command_init();
 }
 
-void void_shell_run( void )
+void vs_run( void )
 {
-	struct shell_data *shell = &static_shell;
+	struct vs_shell_data *shell = &static_shell;
 
-	int8_t input_char = void_shell_get_char();
+	int8_t input_char = vs_get_char();
 	if ( input_char < 0 )
 	{
 		return; /* for non-blocking superloop operation */
@@ -274,12 +273,11 @@ void void_shell_run( void )
 	}
 }
 
-void void_shell_clear_console()
+void vs_clear_console()
 {
-	struct shell_data *shell = &static_shell;
-	shell->cursor_column     = 0;
-	shell->cursor_line       = 0;
-	void_shell_clear_text();
-	void_shell_home();
+	struct vs_shell_data *shell = &static_shell;
+	shell->cursor_column        = 0;
+	shell->cursor_line          = 0;
+	vs_clear_text();
+	vs_home();
 }
-

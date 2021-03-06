@@ -12,7 +12,7 @@ extern uint32_t _sstack;
 extern uint32_t _estack;
 
 int  main( void );
-void Reset_Handler( void );
+void reset_handler( void );
 
 void __libc_init_array( void );
 
@@ -27,40 +27,40 @@ __attribute__( ( section( ".vectors" ) ) )
 const reset_vector_t exception_table = {
     /* Configure Initial Stack Pointer, using linker-generated symbols */
     .stack      = (void *) ( &_estack ),
-    .reset_func = Reset_Handler, /* Reset to our entry point */
+    .reset_func = reset_handler, /* Reset to our entry point */
 };
 
 /**
  * \brief This is the code that gets called on processor reset.
  * To initialize the device, and call the main() routine.
  */
-void Reset_Handler( void )
+void reset_handler( void )
 {
-    uint32_t *pSrc, *pDest;
+    uint32_t *src, *dest;
 
     /* Initialize the relocate segment */
-    pSrc  = &_etext;
-    pDest = &_srelocate;
+    src  = &_etext;
+    dest = &_srelocate;
 
-    if ( pSrc != pDest )
+    if ( src != dest )
     {
-        for ( ; pDest < &_erelocate; )
+        for ( ; dest < &_erelocate; )
         {
-            *pDest++ = *pSrc++;
+            *dest++ = *src++;
         }
     }
 
     /* Clear the zero segment */
-    for ( pDest = &_szero; pDest < &_ezero; )
+    for ( dest = &_szero; dest < &_ezero; )
     {
-        *pDest++ = 0;
+        *dest++ = 0;
     }
 
     /* Set the vector table base address */
-    pSrc                                       = (uint32_t *) &_sfixed;
+    src                                       = (uint32_t *) &_sfixed;
     uint32_t *scb_vector_table_offset_register = (uint32_t *) 0xE000E008UL;
     *scb_vector_table_offset_register =
-        ( (uint32_t) pSrc & ( 0xFFFFFFUL << 8 ) );
+        ( (uint32_t) src & ( 0xFFFFFFUL << 8 ) );
 
     /* Initialize the C library */
     __libc_init_array();

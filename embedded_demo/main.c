@@ -4,11 +4,11 @@
 
 #include "void_shell.h"
 
-int8_t void_shell_get_char(void)
+int8_t vs_get_char(void)
 {
     return SEGGER_RTT_GetKey();
 }
-
+//NOLINTNEXTLINE
 int _putchar(char character)
 {
     return SEGGER_RTT_PutChar( 0, character);
@@ -16,9 +16,9 @@ int _putchar(char character)
 
 int main()
 {
-    void_shell_init();
+     vs_init();
     while (true)
     {
-        void_shell_run();
+         vs_run();
     }
 }

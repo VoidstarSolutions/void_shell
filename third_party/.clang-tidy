@@ -1,0 +1,4 @@
+---
+# NOTE there must be no spaces before the '-', so put the comma last.
+Checks: '-*,
+'

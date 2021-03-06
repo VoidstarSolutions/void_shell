@@ -23,7 +23,7 @@
 *******************************************************************************/
 
 /*
- * void_shell_utilities.c
+ * vs_utilities.c
  s
  * Created: 10/25/20
  * Author : Zachary Heylmun
@@ -31,19 +31,19 @@
 
 #include "void_shell_utilities.h"
 
-#include <../third_party/printf/printf.h>
+#include "printf.h"
 
 #include <stdint.h>
 #include <string.h>
 
-inline static void output_escape_sequence( const char *sequence )
+inline static void vs_output_escape_sequence( const char *sequence )
 {
 	const char escape_sequence[] = { 27, '[' };
-	output( escape_sequence, 2 );
-	output( sequence, strlen( sequence ) );
+	vs_output( escape_sequence, 2 );
+	vs_output( sequence, strlen( sequence ) );
 }
 
-void output( const char *data, size_t length )
+void vs_output( const char *data, size_t length )
 {
 	for ( size_t i = 0; i != length; ++i )
 	{
@@ -51,40 +51,40 @@ void output( const char *data, size_t length )
 	}
 }
 
-void void_shell_start_of_line() { output_escape_sequence( "999D" ); }
+void vs_start_of_line() { vs_output_escape_sequence( "999D" ); }
 
-void void_shell_erase_after_cursor() { output_escape_sequence( "K" ); }
+void vs_erase_after_cursor() { vs_output_escape_sequence( "K" ); }
 
-void void_shell_left() { output_escape_sequence( "D" ); }
+void vs_left() { vs_output_escape_sequence( "D" ); }
 
-void void_shell_right() { output_escape_sequence( "C" ); }
+void vs_right() { vs_output_escape_sequence( "C" ); }
 
-void void_shell_clear_text() { output_escape_sequence( "2J" ); }
+void vs_clear_text() { vs_output_escape_sequence( "2J" ); }
 
-void void_shell_home() { output_escape_sequence( "H" ); }
+void vs_home() { vs_output_escape_sequence( "H" ); }
 
-void void_shell_reset_format() { output_escape_sequence( "0m" ); }
+void vs_reset_format() { vs_output_escape_sequence( "0m" ); }
 
-void void_shell_more_bold() { output_escape_sequence( "1m" ); }
+void vs_more_bold() { vs_output_escape_sequence( "1m" ); }
 
-void void_shell_less_bold() { output_escape_sequence( "2m" ); }
+void vs_less_bold() { vs_output_escape_sequence( "2m" ); }
 
-void void_shell_underline() { output_escape_sequence( "4m" ); }
+void vs_underline() { vs_output_escape_sequence( "4m" ); }
 
-void void_shell_blink() { output_escape_sequence( "5m" ); }
+void vs_blink() { vs_output_escape_sequence( "5m" ); }
 
-void void_shell_background_color( enum void_shell_color color )
+void vs_background_color( enum vs_color color )
 {
 	char           color_sequence[4];
 	const unsigned color_code = (unsigned) color + 40u;
 	snprintf( color_sequence, 4, "%um", color_code );
-	output_escape_sequence( color_sequence );
+	vs_output_escape_sequence( color_sequence );
 }
 
-void void_shell_text_color( enum void_shell_color color )
+void vs_text_color( enum vs_color color )
 {
 	char           color_sequence[4];
 	const unsigned color_code = (unsigned) color + 30u;
 	snprintf( color_sequence, 4, "%um", color_code );
-	output_escape_sequence( color_sequence );
+	vs_output_escape_sequence( color_sequence );
 }
