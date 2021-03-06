@@ -1,6 +1,6 @@
 [submodule "third_party/printf"]
 	path = third_party/printf
 	url = git@github.com:mpaland/printf.git
-[submodule "doxygen/doxygen-dark-theme"]
-	path = doxygen/doxygen-dark-theme
+[submodule "third_party/doxygen-dark-theme"]
+	path = third_party/doxygen-dark-theme
 	url = git@github.com:MaJerle/doxygen-dark-theme.git
