@@ -23,7 +23,7 @@ typedef struct
 } reset_vector_t;
 
 /* Exception Table */
-__attribute__( ( section( ".vectors" ) ) )
+__attribute__ ((section(".vectors"), used))
 const reset_vector_t exception_table = {
     /* Configure Initial Stack Pointer, using linker-generated symbols */
     .stack      = (void *) ( &_estack ),
