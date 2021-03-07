@@ -21,10 +21,7 @@
 
 :paths:
   :source:
-    - ./embedded_demo/**
     - ./source/**
-    - ./third_party/printf/*
-    - ./third_party/RTT/*
 
   :libraries: []
 
@@ -62,46 +59,6 @@
   :gcovr:
     :html_medium_threshold: 75
     :html_high_threshold: 90
-
-:tools:
-  :release_compiler:
-    :executable: arm-none-eabi-gcc
-    :arguments:
-      #- -flto
-      - -fno-builtin
-      - -fdata-sections
-      - -ffunction-sections
-      - -nostartfiles
-      - -g
-      - -mcpu=cortex-m0plus
-      - -mtune=cortex-m0plus
-      - -mthumb
-      - -Wall
-      - -Wpedantic
-      - -Wextra
-      - -std=c99
-      - -I"$": COLLECTION_PATHS_SOURCE_AND_INCLUDE
-      - -D$: DEFINES_RELEASE
-      - -c ${1}
-      - -o ${2}
-  :release_linker:
-    :executable: arm-none-eabi-gcc
-    :arguments:
-      - --specs=nosys.specs
-      - -T ./embedded_demo/link.ld
-      - -Xlinker 
-      - -Map=build/artifacts/release/void_boot.map
-      - --no-whole-file
-      - -mcpu=cortex-m0plus
-      - -mthumb
-      - -emain
-      - ${1}
-      - -o ${2}
-  :release_assembler:
-    :executable: arm-none-eabi-as
-    :arguments:
-      - ${1}
-      - -o ${2}
 
 # LIBRARIES
 # These libraries are automatically injected into the build process. Those specified as

@@ -22,11 +22,11 @@
 **
 ==============================================================================*/
 
-/*
- * vs_utilities.h
+/**
+ * \file void_shell_utilities.h
  *
- * Created: 10/25/20
- * Author : Zachary Heylmun
+ * \date Created: 10/25/20
+ * \author Zachary Heylmun
  */
 
 #ifndef VOID_SHELL_UTILITIES_H

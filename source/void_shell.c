@@ -23,10 +23,10 @@
 ==============================================================================*/
 
 /**
- * void_shell.c
+ * \file void_shell.c
  *
- * Created: 06/04/20
- * Author : Zachary Heylmun
+ * \date Created: 06/04/20
+ * \author Zachary Heylmun
  *
  */
 
@@ -52,7 +52,7 @@
 #define VS_COMMAND_HISTORY_COUNT ( (uint8_t) 8 )
 #endif // vs_COMMAND_HISTORY_COUNT
 
-struct command_history
+struct vs_command_history_entry
 {
 	size_t start_index;
 	size_t length;
@@ -69,21 +69,21 @@ struct vs_shell_data
 	char                   shell_input_buffer[VS_BUFFER_SIZE];
 	uint8_t                command_index;
 	uint8_t                requested_command_index;
-	struct command_history previous_commands[VS_COMMAND_HISTORY_COUNT];
+	struct vs_command_history_entry previous_commands[VS_COMMAND_HISTORY_COUNT];
 };
 
 static struct vs_shell_data static_shell;
 
-static void display_history_command( struct vs_shell_data *shell )
+static void vs_display_history_command( struct vs_shell_data *shell )
 {
 	vs_start_of_line();
 	vs_erase_after_cursor();
-	vc_print_context( true );
+	vc_print_context();
 
-	struct command_history *command = &shell->previous_commands[shell->requested_command_index];
+	struct vs_command_history_entry *command = &shell->previous_commands[shell->requested_command_index];
 	char *history_command_start     = &shell->shell_input_buffer[command->start_index];
 	char *current_command_start     = &shell->shell_input_buffer[shell->start_index];
-	memset( current_command_start+command->length, '\0', shell->line_length );
+	memset( current_command_start + command->length, '\0', shell->line_length );
 	// TODO: Handle commands wrapping buffer
 	vs_output( history_command_start, command->length );
 	memcpy( current_command_start, history_command_start, command->length );
@@ -91,7 +91,7 @@ static void display_history_command( struct vs_shell_data *shell )
 	shell->line_length   = command->length;
 }
 
-static inline void attempt_autocomplete( struct vs_shell_data *shell )
+static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
 {
 	(void) ( shell );
 	char *command_string = &shell->shell_input_buffer[shell->start_index];
@@ -100,7 +100,7 @@ static inline void attempt_autocomplete( struct vs_shell_data *shell )
 	if ( updated_len != 0 )
 	{
 		vs_start_of_line();
-		vc_print_context( true );
+		vc_print_context();
 		shell->cursor_column = updated_len;
 		shell->line_length   = updated_len;
 		vs_output( &shell->shell_input_buffer[shell->start_index], updated_len );
@@ -112,14 +112,14 @@ static inline void attempt_autocomplete( struct vs_shell_data *shell )
 	}
 }
 
-static inline void process_command( struct vs_shell_data *shell )
+static inline void vs_process_command( struct vs_shell_data *shell )
 {
 	// null terminate the command
 	shell->shell_input_buffer[shell->start_index + shell->line_length] = '\0';
 	char *command_start = &shell->shell_input_buffer[shell->start_index];
 	vs_start_of_line();
 	vs_erase_after_cursor();
-	vc_print_context( false );
+	vc_print_context();
 	printf( command_start );
 
 	// new line recieved echo a line separator
@@ -128,7 +128,7 @@ static inline void process_command( struct vs_shell_data *shell )
 	vs_erase_after_cursor();
 	if ( shell->line_length == 0 )
 	{
-		vc_print_context( true );
+		vc_print_context();
 		return;
 	}
 
@@ -161,12 +161,12 @@ static inline bool process_escape_sequence( struct vs_shell_data *shell, char in
 				shell->requested_command_index =
 				    ( VS_COMMAND_HISTORY_COUNT + shell->requested_command_index - 1 ) %
 				    VS_COMMAND_HISTORY_COUNT;
-				display_history_command( shell );
+				vs_display_history_command( shell );
 				break;
 			case 'B': /* Down Arrow */
 				shell->requested_command_index =
 				    ( shell->requested_command_index + 1 ) % VS_COMMAND_HISTORY_COUNT;
-				display_history_command( shell );
+				vs_display_history_command( shell );
 				break;
 			case 'C': /* Right Arrow */
 				if ( shell->cursor_column < shell->line_length )
@@ -230,7 +230,7 @@ void vs_init( void )
 	shell->requested_command_index = 0;
 	memset( shell->shell_input_buffer, 0, VS_BUFFER_SIZE );
 	memset(
-	    shell->previous_commands, 0, sizeof( struct command_history ) * VS_COMMAND_HISTORY_COUNT );
+	    shell->previous_commands, 0, sizeof( struct vs_command_history_entry ) * VS_COMMAND_HISTORY_COUNT );
 
 	vs_clear_console();
 	vc_init();
@@ -255,12 +255,12 @@ void vs_run( void )
 	switch ( input_char )
 	{
 		case 9: /* tab */
-			attempt_autocomplete( shell );
+			vs_attempt_autocomplete( shell );
 			break;
 		case '\n':
 		case '\r':
 			/* newline characters, attempt to process command */
-			process_command( shell );
+			vs_process_command( shell );
 			break;
 		case 27: /* Escape Character */
 			/* start of a new escape sequence */

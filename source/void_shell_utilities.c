@@ -22,11 +22,11 @@
 **
 ==============================================================================*/
 
-/*
- * vs_utilities.c
- s
- * Created: 10/25/20
- * Author : Zachary Heylmun
+/**
+ * \file void_shell_utilities.c
+ *
+ * \date created: 10/25/20
+ * \author Zachary Heylmun
  */
 
 #include "void_shell_utilities.h"
@@ -36,13 +36,6 @@
 #include <stdint.h>
 #include <string.h>
 
-inline static void vs_output_escape_sequence( const char *sequence )
-{
-	const char escape_sequence[] = { 27, '[' };
-	vs_output( escape_sequence, 2 );
-	vs_output( sequence, strlen( sequence ) );
-}
-
 void vs_output( const char *data, size_t length )
 {
 	for ( size_t i = 0; i != length; ++i )
@@ -51,40 +44,84 @@ void vs_output( const char *data, size_t length )
 	}
 }
 
-void vs_start_of_line() { vs_output_escape_sequence( "999D" ); }
+void vs_start_of_line()
+{
+	const char escape_sequence[] = { 27, '[', '9', '9', '9', 'D' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_erase_after_cursor() { vs_output_escape_sequence( "K" ); }
+void vs_erase_after_cursor()
+{
+	const char escape_sequence[] = { 27, '[', 'K' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_left() { vs_output_escape_sequence( "D" ); }
+void vs_left()
+{
+	const char escape_sequence[] = { 27, '[', 'D' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_right() { vs_output_escape_sequence( "C" ); }
+void vs_right()
+{
+	const char escape_sequence[] = { 27, '[', 'C' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_clear_text() { vs_output_escape_sequence( "2J" ); }
+void vs_clear_text()
+{
+	const char escape_sequence[] = { 27, '[', '2', 'J' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_home() { vs_output_escape_sequence( "H" ); }
+void vs_home()
+{
+	const char escape_sequence[] = { 27, '[', 'H' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_reset_format() { vs_output_escape_sequence( "0m" ); }
+void vs_reset_format()
+{
+	const char escape_sequence[] = { 27, '[', '0', 'm' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_more_bold() { vs_output_escape_sequence( "1m" ); }
+void vs_more_bold()
+{
+	const char escape_sequence[] = { 27, '[', '1', 'm' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_less_bold() { vs_output_escape_sequence( "2m" ); }
+void vs_less_bold()
+{
+	const char escape_sequence[] = { 27, '[', '2', 'm' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_underline() { vs_output_escape_sequence( "4m" ); }
+void vs_underline()
+{
+	const char escape_sequence[] = { 27, '[', '4', 'm' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
-void vs_blink() { vs_output_escape_sequence( "5m" ); }
+void vs_blink()
+{
+	const char escape_sequence[] = { 27, '[', '5', 'm' };
+	vs_output( escape_sequence, sizeof( escape_sequence ) );
+}
 
 void vs_background_color( enum vs_color color )
 {
-	char           color_sequence[4];
-	const unsigned color_code = (unsigned) color + 40u;
-	snprintf( color_sequence, 4, "%um", color_code );
-	vs_output_escape_sequence( color_sequence );
+	char           color_sequence[6] = { 27 };
+	const unsigned color_code        = (unsigned) color + 40u;
+	snprintf( &color_sequence[1], 5, "[%um", color_code );
+	vs_output( color_sequence, sizeof( color_sequence ) );
 }
 
 void vs_text_color( enum vs_color color )
 {
-	char           color_sequence[4];
-	const unsigned color_code = (unsigned) color + 30u;
-	snprintf( color_sequence, 4, "%um", color_code );
-	vs_output_escape_sequence( color_sequence );
+	char           color_sequence[6] = { 27 };
+	const unsigned color_code        = (unsigned) color + 30u;
+	snprintf( &color_sequence[1], 5, "[%um", color_code );
+	vs_output( color_sequence, sizeof( color_sequence ) );
 }

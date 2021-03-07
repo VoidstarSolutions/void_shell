@@ -23,10 +23,10 @@
 ==============================================================================*/
 
 /**
- * @file void_command.h
+ * \file void_command.c
  *
- * Created: 06/04/20
- * Author : Zachary Heylmun
+ * \date Created: 06/04/20
+ * \author Zachary Heylmun
  *
  */
 
@@ -72,7 +72,7 @@ static const struct void_command_description help_command_description = {
     .sub_commands   = 0,
 };
 
-static void clear_command( void ) {  vs_clear_console(); }
+static void clear_command( void ) { vs_clear_console(); }
 
 static const struct void_command_description clear_command_description = {
     .command_string = "clear",
@@ -87,16 +87,16 @@ void vc_init()
 	command->active_modal_command     = NULL;
 	vc_register( &help_command_description );
 	vc_register( &clear_command_description );
-	 vs_text_color( COLOR_GREEN );
+	vs_text_color( COLOR_GREEN );
 
-	 vs_more_bold();
-	 vs_more_bold();
+	vs_more_bold();
+	vs_more_bold();
 	printf( "  _    _  _____  _____ ______       _______ _     _ _______               \r\n" );
 	printf( "   \\  /  |     |   |   |     \\      |______ |_____| |______ |      |      \r\n" );
 	printf( "    \\/   |_____| __|__ |_____/      ______| |     | |______ |_____ |_____ \r\n\r\n" );
 
-	 vs_reset_format();
-	vc_print_context(true);
+	vs_reset_format();
+	vc_print_context();
 }
 
 bool vc_register( const struct void_command_description *description )
@@ -176,19 +176,17 @@ void vc_handle_command( const char *command_string )
 	{
 		printf( "Command not recognized.\r\n	Try \"help\"\r\n" );
 	}
-	vc_print_context(true);
+	vc_print_context();
 }
 
-void vc_print_context( bool context_active )
+void vc_print_context( void )
 {
 	struct void_command_data *command = &void_command_instance;
-	 vs_text_color( COLOR_YELLOW );
+	vs_text_color( COLOR_YELLOW );
 	if ( command->active_modal_command )
 	{
 		printf( "%s", command->active_modal_command->command_string );
 	}
-	if ( context_active )
-		 vs_blink();
 	printf( "$>" );
-	 vs_reset_format();
+	vs_reset_format();
 }

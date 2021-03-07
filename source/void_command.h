@@ -22,11 +22,11 @@
 **
 ==============================================================================*/
 
-/*
- * void_command.h
+/**
+ * \file void_command.h
  *
- * Created: 06/04/20
- * Author : Zachary Heylmun
+ * \date Created: 06/04/20
+ * \author Zachary Heylmun
  *
  */
 
@@ -61,6 +61,6 @@ uint16_t vc_complete_command( char *in_out_string, uint16_t max_len );
 
 void vc_handle_command( const char *command_string );
 
-void vc_print_context( bool context_active );
+void vc_print_context( void );
 
 #endif // VOID_COMMAND_H
