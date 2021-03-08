@@ -34,6 +34,7 @@
 
 #include <stddef.h>
 
+/** \brief Enumeration of colors supported for text and backgrounds */
 enum vs_color
 {
 	COLOR_BLACK = 0,

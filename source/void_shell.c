@@ -40,49 +40,59 @@
 #include "void_command.h"
 #include "void_shell_utilities.h"
 
-#ifndef VS_ESCAPE_SEQUENCE_BUFFER_SIZE
-#define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 8 )
-#endif
-
 #ifndef VS_BUFFER_SIZE_POW_TWO
 /** Default buffer size of 2^8, or 256 characters */
 #define VS_BUFFER_SIZE_POW_TWO ( (uint8_t) 8 )
-#endif // vs_BUFFER_SIZE
-
-#define VS_BUFFER_SIZE ( (unsigned) 1 << VS_BUFFER_SIZE_POW_TWO )
-#define VS_BUFFER_INDEX_MASK ( (unsigned) VS_BUFFER_SIZE - 1 )
+#endif // VS_BUFFER_SIZE_POW_TWO
 
 #ifndef VS_COMMAND_HISTORY_COUNT_POW_TWO
 /** Default history length of 2^2, or 4 commands */
 #define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (uint8_t) 2 )
-#endif // vs_COMMAND_HISTORY_COUNT
+#endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
 
+#define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 4 )
+#define VS_BUFFER_SIZE ( (unsigned) 1 << VS_BUFFER_SIZE_POW_TWO )
+#define VS_BUFFER_INDEX_MASK ( (unsigned) VS_BUFFER_SIZE - 1 )
 #define VS_COMMAND_HISTORY_COUNT ( (unsigned) 1 << VS_COMMAND_HISTORY_COUNT_POW_TWO )
 #define VS_COMMAND_HISTORY_INDEX_MASK ( (unsigned) VS_COMMAND_HISTORY_COUNT - 1 )
 
+/** Struct to hold start and length of previous commands */
 struct vs_command_history_entry
 {
 	size_t start_index;
 	size_t length;
 };
 
+/** Struct to hold shell data */
 struct vs_shell_data
 {
-	volatile size_t                 start_index;
-	volatile size_t                 line_length;
-	volatile size_t                 cursor_line;
-	volatile size_t                 cursor_column;
-	volatile size_t                 escape_sequence_index;
-	char                            escape_sequence_buffer[4];
-	char                            input_buffer[VS_BUFFER_SIZE];
-	size_t                          command_index;
-	size_t                          requested_command_index;
+	/** Index of first character in active command */
+	volatile size_t start_index;
+	/** Number of characters in active command */
+	volatile size_t line_length;
+	/** Column of user cursor.  May be less than line_length */
+	volatile size_t cursor_column;
+	/** Line number of cursor in terminal */
+	volatile size_t cursor_line;
+	/** Index in escape buffer.  0 if no escape sequence active */
+	volatile size_t escape_sequence_index;
+	/** Buffer to capture escape sequences outside of character buffer */
+	char escape_sequence_buffer[VS_ESCAPE_SEQUENCE_BUFFER_SIZE];
+	/** Input buffer.  Stores active command as well as history */
+	char input_buffer[VS_BUFFER_SIZE];
+	/** Index of current command in history buffer */
+	size_t command_index;
+	/** Index of requested command for accessing historical commands */
+	size_t requested_command_index;
+	/** Buffer to store information about past commands */
 	struct vs_command_history_entry previous_commands[VS_COMMAND_HISTORY_COUNT];
-	bool                            dirty;
+	/** Shell is dirty if user has entered characters other than control characters */
+	bool dirty;
 };
 
 static struct vs_shell_data static_shell;
 
+/** \brief Invalidate any command completion strings that we've overrun after wrapping */
 static void vs_invalidate_history( struct vs_shell_data *shell )
 {
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; cmd_idx++ )

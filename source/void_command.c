@@ -69,7 +69,6 @@ static const struct void_command_description help_command_description = {
     .command_string = "help",
     .command        = help_command,
     .help_string    = "The following are the currently registered commands:",
-    .sub_commands   = 0,
 };
 
 static void clear_command( void ) { vs_clear_console(); }
@@ -78,7 +77,7 @@ static const struct void_command_description clear_command_description = {
     .command_string = "clear",
     .command        = clear_command,
     .help_string    = "Clear the terminal",
-    .sub_commands   = NULL };
+};
 
 void vc_init()
 {
