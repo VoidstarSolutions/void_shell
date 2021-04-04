@@ -66,6 +66,7 @@ struct vs_command_history_entry
 /** Struct to hold shell data */
 struct vs_shell_data
 {
+	vs_get_char input_func;
 	/** Index of first character in active command */
 	volatile size_t start_index;
 	/** Number of characters in active command */
@@ -86,11 +87,15 @@ struct vs_shell_data
 	size_t requested_command_index;
 	/** Buffer to store information about past commands */
 	struct vs_command_history_entry previous_commands[VS_COMMAND_HISTORY_COUNT];
+	/** Whether this shell will echo typed characters */
+	bool echo_enabled;
 	/** Shell is dirty if user has entered characters other than control characters */
 	bool dirty;
 };
 
 static struct vs_shell_data static_shell;
+
+vs_shell_data_t vs_static_shell = &static_shell;
 
 /** \brief Invalidate any command completion strings that we've overrun after wrapping */
 static void vs_invalidate_history( struct vs_shell_data *shell )
@@ -292,9 +297,9 @@ static inline void process_recieved_char( struct vs_shell_data *shell, char inpu
 	}
 }
 
-void vs_init( void )
+void vs_init( vs_shell_data_t shell, vs_get_char input_func )
 {
-	struct vs_shell_data *shell    = &static_shell;
+	shell->input_func              = input_func;
 	shell->start_index             = 0;
 	shell->line_length             = 0;
 	shell->cursor_line             = 1;
@@ -307,15 +312,19 @@ void vs_init( void )
 	        0,
 	        sizeof( struct vs_command_history_entry ) * VS_COMMAND_HISTORY_COUNT );
 
-	vs_clear_console();
+	vs_clear_console( shell );
 	vc_init();
 }
 
-void vs_run( void )
+void vs_set_echo_enabled( vs_shell_data_t shell, bool echo_enabled )
 {
-	struct vs_shell_data *shell = &static_shell;
+	shell->echo_enabled = echo_enabled;
+}
 
-	int8_t input_char = vs_get_char();
+void vs_run( vs_shell_data_t shell )
+{
+
+	int8_t input_char = shell->input_func();
 	if ( input_char < 0 )
 	{
 		return; /* for non-blocking superloop operation */
@@ -348,11 +357,10 @@ void vs_run( void )
 	}
 }
 
-void vs_clear_console()
+void vs_clear_console( vs_shell_data_t shell )
 {
-	struct vs_shell_data *shell = &static_shell;
-	shell->cursor_column        = 0;
-	shell->cursor_line          = 0;
+	shell->cursor_column = 0;
+	shell->cursor_line   = 0;
 	vs_clear_text();
 	vs_home();
 }

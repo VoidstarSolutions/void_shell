@@ -35,26 +35,38 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+struct vs_shell_data;
+
+typedef struct vs_shell_data * vs_shell_data_t;
+
+extern vs_shell_data_t vs_static_shell;
+
 /**
  * \brief Function to get next input character for shell
  * Must be provided by console application
  * \return Negative if not available, or ASCII value from 0-127
  **/
-int8_t vs_get_char( void );
+typedef int8_t (*vs_get_char)();
 
 /**
  * \brief Initialize the memories for shell
  **/
-void vs_init( void );
+void vs_init( vs_shell_data_t shell, vs_get_char input_func );
+
+/**
+ * \brief Enable or disable shell echo
+ * \param [in] echo_enabled Whether the shell should echo recieved characters
+ **/
+void vs_set_echo_enabled( vs_shell_data_t shell, bool echo_enabled ); 
 
 /**
  * \brief Service CLI input
  **/
-void vs_run( void );
+void vs_run( vs_shell_data_t shell );
 
 /**
  * \brief Clear the console of text and reset to first line/column
  **/
-void vs_clear_console( void );
+void vs_clear_console( vs_shell_data_t shell );
 
 #endif // vs_H
