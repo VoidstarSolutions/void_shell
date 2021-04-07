@@ -35,38 +35,66 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifndef VS_SHELL_COUNT
+/** Default is a single shell */
+#define VS_SHELL_COUNT ( (uint8_t) 1 )
+#endif // VS_SHELL_COUNT
+
+#ifndef VS_BUFFER_SIZE_POW_TWO
+/** Default buffer size of 2^8, or 256 characters */
+#define VS_BUFFER_SIZE_POW_TWO ( (uint8_t) 8 )
+#endif // VS_BUFFER_SIZE_POW_TWO
+
+#ifndef VS_COMMAND_HISTORY_COUNT_POW_TWO
+/** Default history length of 2^2, or 4 commands */
+#define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (uint8_t) 2 )
+#endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
+
 struct vs_shell_data;
 
-typedef struct vs_shell_data * vs_shell_data_t;
+typedef struct vs_shell_data *vs_shell_handle;
 
-extern vs_shell_data_t vs_static_shell;
+/** 
+ * @brief vs_shell_data will be an array of pointers to shell
+ * data of size VS_SHELL_COUNT
+ **/
+extern vs_shell_handle vs_shell_handles[];
 
 /**
- * \brief Function to get next input character for shell
+ * @brief Function to get next input character for shell
  * Must be provided by console application
- * \return Negative if not available, or ASCII value from 0-127
+ * @return Negative if not available, or ASCII value from 0-127
  **/
-typedef int8_t (*vs_get_char)();
+typedef int8_t ( *vs_get_char )();
 
 /**
- * \brief Initialize the memories for shell
+ * @brief Initialize the memories for shell
  **/
-void vs_init( vs_shell_data_t shell, vs_get_char input_func );
+void vs_init();
 
 /**
- * \brief Enable or disable shell echo
- * \param [in] echo_enabled Whether the shell should echo recieved characters
+ * @brief Configure a shell with the provided input function
+ * 
+ * @param [in,out] shell The shell to configure
+ * @param [in] input_func vs_get_char function pointer to retrieve
+ * next input character for shell
+ * @param [in] echo_enabled Whether the shell should echo typed characters,
+ * newlines, and escape sequences
  **/
-void vs_set_echo_enabled( vs_shell_data_t shell, bool echo_enabled ); 
+void vs_configure( vs_shell_handle shell, vs_get_char input_func, bool echo_enabled );
 
 /**
- * \brief Service CLI input
+ * @brief Service CLI input
+ * 
+ * @param [in,out] shell Shell to service
  **/
-void vs_run( vs_shell_data_t shell );
+void vs_run( vs_shell_handle shell );
 
 /**
- * \brief Clear the console of text and reset to first line/column
+ * @brief Clear the console of text and reset to first line/column
+ * 
+ * @param [in,out] shell Shell to clear console
  **/
-void vs_clear_console( vs_shell_data_t shell );
+void vs_clear_console( vs_shell_handle shell );
 
 #endif // vs_H

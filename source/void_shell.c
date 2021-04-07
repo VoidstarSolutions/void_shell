@@ -23,10 +23,10 @@
 ==============================================================================*/
 
 /**
- * \file void_shell.c
+ * @file void_shell.c
  *
- * \date Created: 06/04/20
- * \author Zachary Heylmun
+ * @date Created: 06/04/20
+ * @author Zachary Heylmun
  *
  */
 
@@ -40,32 +40,27 @@
 #include "void_command.h"
 #include "void_shell_utilities.h"
 
-#ifndef VS_BUFFER_SIZE_POW_TWO
-/** Default buffer size of 2^8, or 256 characters */
-#define VS_BUFFER_SIZE_POW_TWO ( (uint8_t) 8 )
-#endif // VS_BUFFER_SIZE_POW_TWO
-
-#ifndef VS_COMMAND_HISTORY_COUNT_POW_TWO
-/** Default history length of 2^2, or 4 commands */
-#define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (uint8_t) 2 )
-#endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
-
 #define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 4 )
 #define VS_BUFFER_SIZE ( (unsigned) 1 << VS_BUFFER_SIZE_POW_TWO )
 #define VS_BUFFER_INDEX_MASK ( (unsigned) VS_BUFFER_SIZE - 1 )
 #define VS_COMMAND_HISTORY_COUNT ( (unsigned) 1 << VS_COMMAND_HISTORY_COUNT_POW_TWO )
 #define VS_COMMAND_HISTORY_INDEX_MASK ( (unsigned) VS_COMMAND_HISTORY_COUNT - 1 )
 
-/** Struct to hold start and length of previous commands */
+/** 
+ * @brief Struct to hold start and length of previous commands 
+ * **/
 struct vs_command_history_entry
 {
 	size_t start_index;
 	size_t length;
 };
 
-/** Struct to hold shell data */
+/** 
+ * @brief Struct to hold shell data 
+ **/
 struct vs_shell_data
 {
+	/** Function to retrieve next input character */
 	vs_get_char input_func;
 	/** Index of first character in active command */
 	volatile size_t start_index;
@@ -93,11 +88,15 @@ struct vs_shell_data
 	bool dirty;
 };
 
-static struct vs_shell_data static_shell;
+static struct vs_shell_data void_shell_data[VS_SHELL_COUNT];
 
-vs_shell_data_t vs_static_shell = &static_shell;
+vs_shell_handle vs_shell_handles[VS_SHELL_COUNT];
 
-/** \brief Invalidate any command completion strings that we've overrun after wrapping */
+/** 
+ * @brief Invalidate any command completion strings that we've overrun after wrapping 
+ * 
+ * @param [in,out] shell shell data for which overrun history should be invalidated
+ * */
 static void vs_invalidate_history( struct vs_shell_data *shell )
 {
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; cmd_idx++ )
@@ -113,17 +112,25 @@ static void vs_invalidate_history( struct vs_shell_data *shell )
 	}
 }
 
+/**
+ * @brief Handle any cleanup and wrap back to the begining of the input buffer 
+ * @param [in,out] shell shell data for handling wrapped buffer
+ **/
 static void vs_buffer_wrapped( struct vs_shell_data *shell )
 {
 	// copy our current command to the start of the buffer
 	memcpy( shell->input_buffer, &shell->input_buffer[shell->start_index], shell->line_length );
 	// erase the leftovers
 	memset( &shell->input_buffer[shell->start_index], '\0', shell->line_length );
-	shell->start_index   = 0;
-	shell->cursor_column = shell->line_length;
+	shell->start_index = 0;
 	vs_invalidate_history( shell );
 }
 
+/** 
+ * @brief Display the selected history command.  If the shell is dirty, the 
+ * current command will be preserved
+ * @param[in,out] shell Shell data to display history from
+ */
 static void vs_display_history_command( struct vs_shell_data *shell )
 {
 	vs_start_of_line();
@@ -158,6 +165,10 @@ static void vs_display_history_command( struct vs_shell_data *shell )
 	vs_invalidate_history( shell );
 }
 
+/** 
+ * @brief Request command completion from command processor for current command
+ * @param[in,out] shell Shell Data for current command
+ */
 static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
 {
 	(void) ( shell );
@@ -179,6 +190,10 @@ static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
 	}
 }
 
+/** 
+ * @brief Evaluate the current command
+ * @param[in,out] shell Shell Data for current command
+ */
 static inline void vs_process_command( struct vs_shell_data *shell )
 {
 	size_t terminator_index = shell->start_index + shell->line_length;
@@ -215,6 +230,12 @@ static inline void vs_process_command( struct vs_shell_data *shell )
 	shell->dirty = false;
 }
 
+/** 
+ * @brief Handle character as part of escape sequence
+ * @param[in,out] shell Shell data for current command 
+ * @param[in] input_char Potential next character in escape sequence
+ * @return false if escape sequence is invalid
+ **/
 static inline bool process_escape_sequence( struct vs_shell_data *shell, char input_char )
 {
 	shell->escape_sequence_buffer[shell->escape_sequence_index++] = input_char;
@@ -260,6 +281,12 @@ static inline bool process_escape_sequence( struct vs_shell_data *shell, char in
 	return true;
 }
 
+/**
+ * @brief Handle a recieved character
+ * 
+ * @param [in,out] shell Shell data to add recieved character to
+ * @param [in] input_char recieved character to process
+ */
 static inline void process_recieved_char( struct vs_shell_data *shell, char input_char )
 {
 	size_t character_index = ( shell->start_index + shell->cursor_column ) & VS_BUFFER_INDEX_MASK;
@@ -297,31 +324,36 @@ static inline void process_recieved_char( struct vs_shell_data *shell, char inpu
 	}
 }
 
-void vs_init( vs_shell_data_t shell, vs_get_char input_func )
+void vs_init()
 {
-	shell->input_func              = input_func;
-	shell->start_index             = 0;
-	shell->line_length             = 0;
-	shell->cursor_line             = 1;
-	shell->cursor_column           = 0;
-	shell->escape_sequence_index   = 0;
-	shell->command_index           = 0;
-	shell->requested_command_index = 0;
-	memset( shell->input_buffer, 0, VS_BUFFER_SIZE );
-	memset( shell->previous_commands,
-	        0,
-	        sizeof( struct vs_command_history_entry ) * VS_COMMAND_HISTORY_COUNT );
-
-	vs_clear_console( shell );
+	for ( unsigned shell_index = 0; shell_index < VS_SHELL_COUNT; ++shell_index )
+	{
+		vs_shell_handle shell = &void_shell_data[shell_index];
+		vs_shell_handles[shell_index] = shell;
+		shell->start_index = 0;
+		shell->line_length                               = 0;
+		shell->cursor_line                               = 1;
+		shell->cursor_column                             = 0;
+		shell->escape_sequence_index                     = 0;
+		shell->command_index                             = 0;
+		shell->requested_command_index                   = 0;
+		memset( shell->input_buffer, 0, VS_BUFFER_SIZE );
+		memset( shell->previous_commands,
+		        0,
+		        sizeof( struct vs_command_history_entry ) * VS_COMMAND_HISTORY_COUNT );
+		vs_clear_console( shell );
+	}
 	vc_init();
 }
 
-void vs_set_echo_enabled( vs_shell_data_t shell, bool echo_enabled )
+void vs_configure( vs_shell_handle shell, vs_get_char input_func, bool echo_enabled )
 {
+	shell->input_func   = input_func;
 	shell->echo_enabled = echo_enabled;
+	;
 }
 
-void vs_run( vs_shell_data_t shell )
+void vs_run( vs_shell_handle shell )
 {
 
 	int8_t input_char = shell->input_func();
@@ -357,7 +389,7 @@ void vs_run( vs_shell_data_t shell )
 	}
 }
 
-void vs_clear_console( vs_shell_data_t shell )
+void vs_clear_console( vs_shell_handle shell )
 {
 	shell->cursor_column = 0;
 	shell->cursor_line   = 0;
