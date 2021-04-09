@@ -34,6 +34,8 @@
 
 #include <stddef.h>
 
+#include "void_shell.h"
+
 /** \brief Enumeration of colors supported for text and backgrounds */
 enum vs_color
 {
@@ -47,32 +49,30 @@ enum vs_color
 	COLOR_WHITE,
 };
 
-void vs_output( const char *data, size_t length );
+void vs_start_of_line( vs_shell_handle shell );
 
-void vs_start_of_line( void );
+void vs_erase_after_cursor( vs_shell_handle shell );
 
-void vs_erase_after_cursor( void );
+void vs_left( vs_shell_handle shell );
 
-void vs_left( void );
+void vs_right( vs_shell_handle shell );
 
-void vs_right( void );
+void vs_clear_text( vs_shell_handle shell );
 
-void vs_clear_text( void );
+void vs_home( vs_shell_handle shell );
 
-void vs_home( void );
+void vs_reset_format( vs_shell_handle shell );
 
-void vs_reset_format( void );
+void vs_more_bold( vs_shell_handle shell );
 
-void vs_more_bold( void );
+void vs_less_bold( vs_shell_handle shell );
 
-void vs_less_bold( void );
+void vs_underline( vs_shell_handle shell );
 
-void vs_underline( void );
+void vs_blink( vs_shell_handle shell );
 
-void vs_blink( void );
+void vs_text_color( vs_shell_handle shell, enum vs_color color );
 
-void vs_text_color( enum vs_color color );
-
-void vs_background_color( enum vs_color );
+void vs_background_color( vs_shell_handle shell, enum vs_color );
 
 #endif // vs_UTILITIES_H

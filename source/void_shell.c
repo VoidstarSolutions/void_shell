@@ -62,6 +62,8 @@ struct vs_shell_data
 {
 	/** Function to retrieve next input character */
 	vs_get_char input_func;
+	/** Function for shell output */
+	vs_output output_func;
 	/** Index of first character in active command */
 	volatile size_t start_index;
 	/** Number of characters in active command */
@@ -133,8 +135,8 @@ static void vs_buffer_wrapped( struct vs_shell_data *shell )
  */
 static void vs_display_history_command( struct vs_shell_data *shell )
 {
-	vs_start_of_line();
-	vs_erase_after_cursor();
+	vs_start_of_line( shell );
+	vs_erase_after_cursor( shell );
 	vc_print_context();
 	if ( shell->dirty )
 	{
@@ -157,7 +159,7 @@ static void vs_display_history_command( struct vs_shell_data *shell )
 	}
 	memset( current_command_start + command->length, '\0', shell->line_length );
 	// TODO: Handle commands wrapping buffer
-	vs_output( history_command_start, command->length );
+	vs_output_internal( shell, history_command_start, command->length );
 	memcpy( current_command_start, history_command_start, command->length );
 	shell->cursor_column = command->length;
 	shell->line_length   = command->length;
@@ -177,16 +179,16 @@ static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
 	uint16_t updated_len = vc_complete_command( command_string, 255 );
 	if ( updated_len != 0 )
 	{
-		vs_start_of_line();
+		vs_start_of_line( shell );
 		vc_print_context();
 		shell->cursor_column = updated_len;
 		shell->line_length   = updated_len;
-		vs_output( &shell->input_buffer[shell->start_index], updated_len );
+		vs_output_internal( shell, &shell->input_buffer[shell->start_index], updated_len );
 	}
 	else
 	{
 		char bel = 7;
-		vs_output( &bel, 1 );
+		vs_output_internal( shell, &bel, 1 );
 	}
 }
 
@@ -203,15 +205,15 @@ static inline void vs_process_command( struct vs_shell_data *shell )
 	vs_invalidate_history( shell );
 
 	char *command_start = &shell->input_buffer[shell->start_index];
-	vs_start_of_line();
-	vs_erase_after_cursor();
+	vs_start_of_line( shell );
+	vs_erase_after_cursor( shell );
 	vc_print_context();
 	printf( command_start );
 
 	// new line recieved echo a line separator
-	vs_output( "\n", 1 );
-	vs_start_of_line();
-	vs_erase_after_cursor();
+	vs_output_internal( shell, "\n", 1 );
+	vs_start_of_line( shell );
+	vs_erase_after_cursor( shell );
 	if ( shell->line_length == 0 )
 	{
 		vc_print_context();
@@ -262,14 +264,14 @@ static inline bool process_escape_sequence( struct vs_shell_data *shell, char in
 			case 'C': /* Right Arrow */
 				if ( shell->cursor_column < shell->line_length )
 				{
-					vs_right();
+					vs_right( shell );
 					++shell->cursor_column;
 				}
 				break;
 			case 'D': /* Left Arrow */
 				if ( shell->cursor_column > 0 )
 				{
-					vs_left();
+					vs_left( shell );
 					--shell->cursor_column;
 				}
 				break;
@@ -297,8 +299,8 @@ static inline void process_recieved_char( struct vs_shell_data *shell, char inpu
 		input_char = '\b';
 		if ( shell->cursor_column )
 		{
-			vs_output( &input_char, 1 );
-			vs_erase_after_cursor();
+			vs_output_internal( shell, &input_char, 1 );
+			vs_erase_after_cursor( shell );
 			--shell->cursor_column;
 			shell->line_length                     = shell->cursor_column;
 			shell->input_buffer[--character_index] = '\0';
@@ -312,7 +314,7 @@ static inline void process_recieved_char( struct vs_shell_data *shell, char inpu
 			vs_buffer_wrapped( shell );
 			character_index = shell->cursor_column;
 		}
-		vs_output( &input_char, 1 );
+		vs_output_internal( shell, &input_char, 1 );
 		shell->input_buffer[character_index] = input_char;
 		++shell->cursor_column;
 		if ( shell->cursor_column > shell->line_length )
@@ -328,27 +330,30 @@ void vs_init()
 {
 	for ( unsigned shell_index = 0; shell_index < VS_SHELL_COUNT; ++shell_index )
 	{
-		vs_shell_handle shell = &void_shell_data[shell_index];
-		vs_shell_handles[shell_index] = shell;
-		shell->start_index = 0;
-		shell->line_length                               = 0;
-		shell->cursor_line                               = 1;
-		shell->cursor_column                             = 0;
-		shell->escape_sequence_index                     = 0;
-		shell->command_index                             = 0;
-		shell->requested_command_index                   = 0;
+		vs_shell_handle shell          = &void_shell_data[shell_index];
+		vs_shell_handles[shell_index]  = shell;
+		shell->start_index             = 0;
+		shell->line_length             = 0;
+		shell->cursor_line             = 1;
+		shell->cursor_column           = 0;
+		shell->escape_sequence_index   = 0;
+		shell->command_index           = 0;
+		shell->requested_command_index = 0;
 		memset( shell->input_buffer, 0, VS_BUFFER_SIZE );
 		memset( shell->previous_commands,
 		        0,
 		        sizeof( struct vs_command_history_entry ) * VS_COMMAND_HISTORY_COUNT );
 		vs_clear_console( shell );
 	}
-	vc_init();
 }
 
-void vs_configure( vs_shell_handle shell, vs_get_char input_func, bool echo_enabled )
+void vs_configure( vs_shell_handle shell,
+                   vs_get_char     input_func,
+                   vs_output       output_func,
+                   bool            echo_enabled )
 {
 	shell->input_func   = input_func;
+	shell->output_func  = output_func;
 	shell->echo_enabled = echo_enabled;
 	;
 }
@@ -393,6 +398,14 @@ void vs_clear_console( vs_shell_handle shell )
 {
 	shell->cursor_column = 0;
 	shell->cursor_line   = 0;
-	vs_clear_text();
-	vs_home();
+	vs_clear_text( shell );
+	vs_home( shell );
+}
+
+void vs_output_internal( vs_shell_handle shell, const char *data, size_t length )
+{
+	if ( shell->echo_enabled )
+	{
+		shell->output_func( data, length );
+	}
 }

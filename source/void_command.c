@@ -47,6 +47,7 @@
 
 struct void_command_data
 {
+	vs_shell_handle                        shell;
 	uint16_t                               registered_command_count;
 	struct void_command_description const *registered_commands[VOID_COMMAND_MAX_COMMANDS];
 	struct void_command_description const *active_modal_command;
@@ -79,22 +80,23 @@ static const struct void_command_description clear_command_description = {
     .help_string    = "Clear the terminal",
 };
 
-void vc_init()
+void vc_init( vs_shell_handle shell )
 {
 	struct void_command_data *command = &void_command_instance;
+	command->shell                    = shell;
 	command->registered_command_count = 0;
 	command->active_modal_command     = NULL;
 	vc_register( &help_command_description );
 	vc_register( &clear_command_description );
-	vs_text_color( COLOR_GREEN );
+	vs_text_color( shell, COLOR_GREEN );
 
-	vs_more_bold();
-	vs_more_bold();
+	vs_more_bold( shell );
+	vs_more_bold( shell );
 	printf( "  _    _  _____  _____ ______       _______ _     _ _______               \r\n" );
 	printf( "   \\  /  |     |   |   |     \\      |______ |_____| |______ |      |      \r\n" );
 	printf( "    \\/   |_____| __|__ |_____/      ______| |     | |______ |_____ |_____ \r\n\r\n" );
 
-	vs_reset_format();
+	vs_reset_format( shell );
 	vc_print_context();
 }
 
@@ -181,11 +183,11 @@ void vc_handle_command( const char *command_string )
 void vc_print_context( void )
 {
 	struct void_command_data *command = &void_command_instance;
-	vs_text_color( COLOR_YELLOW );
+	vs_text_color( command->shell, COLOR_YELLOW );
 	if ( command->active_modal_command )
 	{
 		printf( "%s", command->active_modal_command->command_string );
 	}
 	printf( "$>" );
-	vs_reset_format();
+	vs_reset_format( command->shell );
 }

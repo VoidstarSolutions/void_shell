@@ -36,6 +36,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "void_shell.h"
+
 typedef void ( *command_handler )( void );
 
 /**
@@ -51,7 +53,7 @@ struct void_command_description
 	const char *help_string;
 };
 
-void vc_init();
+void vc_init( vs_shell_handle shell );
 
 bool vc_register( const struct void_command_description *command );
 

@@ -33,6 +33,7 @@
 #define VOID_SHELL_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifndef VS_SHELL_COUNT
@@ -67,6 +68,8 @@ extern vs_shell_handle vs_shell_handles[];
  **/
 typedef int8_t ( *vs_get_char )();
 
+typedef void (*vs_output)( const char *data, size_t length );
+
 /**
  * @brief Initialize the memories for shell
  **/
@@ -81,7 +84,7 @@ void vs_init();
  * @param [in] echo_enabled Whether the shell should echo typed characters,
  * newlines, and escape sequences
  **/
-void vs_configure( vs_shell_handle shell, vs_get_char input_func, bool echo_enabled );
+void vs_configure( vs_shell_handle shell, vs_get_char input_func, vs_output output_func, bool echo_enabled );
 
 /**
  * @brief Service CLI input
@@ -96,5 +99,15 @@ void vs_run( vs_shell_handle shell );
  * @param [in,out] shell Shell to clear console
  **/
 void vs_clear_console( vs_shell_handle shell );
+
+/**
+ * @brief internal function to handle output from shell
+ * DO NOT CALL
+ * 
+ * @param [in] shell Shell for output
+ * @param [in] data characters to print
+ * @param [in] length number of characters to output
+ **/
+void vs_output_internal( vs_shell_handle shell, const char *data, size_t length );
 
 #endif // vs_H
