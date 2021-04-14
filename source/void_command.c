@@ -112,7 +112,7 @@ bool vc_register( const struct void_command_description *description )
 	return true;
 }
 
-uint16_t vc_complete_command( char *in_out_string, uint16_t max_len )
+size_t vc_complete_command( char *in_out_string, size_t max_len )
 {
 	(void) ( max_len );
 	const struct void_command_data *command     = &void_command_instance;
@@ -175,7 +175,7 @@ void vc_handle_command( const char *command_string )
 	}
 	if ( !command_found )
 	{
-		printf( "Command not recognized.\r\n	Try \"help\"\r\n" );
+		printf( "Command not recognized.\r\n\tTry \"help\"\r\n" );
 	}
 	vc_print_context();
 }

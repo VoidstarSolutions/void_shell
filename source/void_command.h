@@ -34,7 +34,7 @@
 #define VOID_COMMAND_H
 
 #include <stdbool.h>
-#include <stdint.h>
+#include <stddef.h>
 
 #include "void_shell.h"
 
@@ -57,7 +57,7 @@ void vc_init( vs_shell_handle shell );
 
 bool vc_register( const struct void_command_description *command );
 
-uint16_t vc_complete_command( char *in_out_string, uint16_t max_len );
+size_t vc_complete_command( char *in_out_string, size_t max_len );
 
 void vc_handle_command( const char *command_string );
 
