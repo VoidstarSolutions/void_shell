@@ -57,7 +57,7 @@ static struct void_command_data void_command_instance;
 
 static void help_command( void )
 {
-	struct void_command_data *command = &void_command_instance;
+	const struct void_command_data *command = &void_command_instance;
 	for ( uint16_t i = 1; i < command->registered_command_count; ++i )
 	{
 		const struct void_command_description *desc = command->registered_commands[i];
@@ -115,9 +115,9 @@ bool vc_register( const struct void_command_description *description )
 uint16_t vc_complete_command( char *in_out_string, uint16_t max_len )
 {
 	(void) ( max_len );
-	struct void_command_data *command     = &void_command_instance;
-	size_t                    input_len   = strlen( in_out_string );
-	uint16_t                  match_index = command->registered_command_count;
+	const struct void_command_data *command     = &void_command_instance;
+	size_t                          input_len   = strlen( in_out_string );
+	uint16_t                        match_index = command->registered_command_count;
 	for ( uint16_t command_index = 0; command_index != command->registered_command_count;
 	      ++command_index )
 	{
@@ -148,7 +148,7 @@ uint16_t vc_complete_command( char *in_out_string, uint16_t max_len )
 	if ( match_index != command->registered_command_count )
 	{
 		struct void_command_description const *match   = command->registered_commands[match_index];
-		uint16_t                               new_len = strlen( match->command_string );
+		size_t                                 new_len = strlen( match->command_string );
 		for ( uint16_t char_index = 0; char_index != new_len; ++char_index )
 		{
 			in_out_string[char_index] = match->command_string[char_index];
@@ -161,7 +161,7 @@ uint16_t vc_complete_command( char *in_out_string, uint16_t max_len )
 void vc_handle_command( const char *command_string )
 {
 	bool                      command_found = false;
-	struct void_command_data *command       = &void_command_instance;
+	const struct void_command_data *command       = &void_command_instance;
 	for ( uint16_t command_index = 0; command_index != command->registered_command_count;
 	      ++command_index )
 	{

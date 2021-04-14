@@ -2,9 +2,10 @@
 
 #include "SEGGER_RTT.h"
 
+#include "void_command.h"
 #include "void_shell.h"
 
-int8_t shell_get_char( void ) { return SEGGER_RTT_GetKey(); }
+int8_t shell_get_char( void ) { return (int8_t) SEGGER_RTT_GetKey(); }
 
 //NOLINTNEXTLINE
 int _putchar( char character ) { return SEGGER_RTT_PutChar( 0, character ); }
@@ -19,8 +20,9 @@ void shell_output( const char *data, size_t length )
 
 int main()
 {
-	vs_init( vs_shell_handles[0], &shell_get_char );
-	vs_configure( vs_shell_handles[0], shell_get_char, shell_output, true );
+	vs_init();
+	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
+	vc_init( vs_shell_handles[0] );
 	while ( true )
 	{
 		vs_run( vs_shell_handles[0] );

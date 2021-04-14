@@ -105,7 +105,7 @@ static void vs_invalidate_history( struct vs_shell_data *shell )
 	{
 		struct vs_command_history_entry *command = &shell->previous_commands[cmd_idx];
 		if ( command->length && command->start_index >= shell->start_index &&
-		     command->start_index < ( shell->start_index + shell->line_length + 1 ) )
+		     command->start_index <= ( shell->start_index + shell->line_length  ) )
 		{
 			memset( &shell->input_buffer[command->start_index], '\0', command->length );
 			shell->previous_commands[cmd_idx].start_index = 0;
@@ -315,7 +315,8 @@ static inline void process_recieved_char( struct vs_shell_data *shell, char inpu
 			character_index = shell->cursor_column;
 		}
 		vs_output_internal( shell, &input_char, 1 );
-		shell->input_buffer[character_index] = input_char;
+		shell->input_buffer[character_index++] = input_char;
+		shell->input_buffer[character_index] = '\0';
 		++shell->cursor_column;
 		if ( shell->cursor_column > shell->line_length )
 		{

@@ -1,0 +1,26 @@
+language: c
+
+matrix:
+  fast_finish: true
+  include:
+    - name: 10-2020-q4
+      env: GCC_URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+
+before_install:
+  - rvm install 2.7
+  - gem install ceedling
+  - sudo apt-get update
+  - sudo apt-get install cmake ninja-build
+  - pushd .
+  - cd ~
+  - mkdir arm-gcc-toolchain
+  - wget -O $HOME/arm-gcc-toolchain/gcc.tar.bz2 $GCC_URL
+  - cd arm-gcc-toolchain
+  - tar -jxf gcc.tar.bz2 --strip=1
+  - popd
+  - export PATH=$HOME/arm-gcc-toolchain/bin:$PATH
+
+script:
+  - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake -H./ -B./build -G Ninja
+  - cmake --build ./build --config MinSizeRel --target all
+  #- ceedling test:all

@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 
 /* Initialize segments */
@@ -18,57 +19,59 @@ void __libc_init_array( void );
 
 typedef struct
 {
-    void *stack;
-    void ( *reset_func )();
+	void *stack;
+	void ( *reset_func )();
 } reset_vector_t;
 
-/* Exception Table */
-__attribute__ ((section(".vectors"), used))
-const reset_vector_t exception_table = {
+/**
+ * \brief Exception Table 
+ * Only defines stack pointer and reset handler.
+ * All other interrupts are invalid
+ **/
+__attribute__( ( section( ".vectors" ), used ) ) const reset_vector_t exception_table = {
     /* Configure Initial Stack Pointer, using linker-generated symbols */
     .stack      = (void *) ( &_estack ),
-    .reset_func = reset_handler, /* Reset to our entry point */
+    .reset_func = &reset_handler, /* Reset to our entry point */
 };
 
 /**
  * \brief This is the code that gets called on processor reset.
- * To initialize the device, and call the main() routine.
+ * to initialize the device, and call the main() routine.
  */
-void reset_handler( void )
+__attribute__( ( noreturn ) ) void reset_handler( void )
 {
-    uint32_t *src, *dest;
+	uint32_t *src  = &_etext;
+	uint32_t *dest = &_srelocate;
 
-    /* Initialize the relocate segment */
-    src  = &_etext;
-    dest = &_srelocate;
+	if ( src != dest )
+	{
+		while ( dest < &_erelocate )
+		{
+			*dest++ = *src++;
+		}
+	}
 
-    if ( src != dest )
-    {
-        for ( ; dest < &_erelocate; )
-        {
-            *dest++ = *src++;
-        }
-    }
+	dest = &_szero;
+	/* Clear the zero segment */
+	while ( dest < &_ezero )
+	{
+		*dest++ = 0;
+	}
 
-    /* Clear the zero segment */
-    for ( dest = &_szero; dest < &_ezero; )
-    {
-        *dest++ = 0;
-    }
+	/* Set the vector table base address */
+	src                                        = &_sfixed;
+	uint32_t *scb_vector_table_offset_register = (uint32_t *) 0xE000E008UL;
+	*scb_vector_table_offset_register          = ( (uint32_t) src & ( 0xFFFFFFUL << 8 ) );
 
-    /* Set the vector table base address */
-    src                                       = (uint32_t *) &_sfixed;
-    uint32_t *scb_vector_table_offset_register = (uint32_t *) 0xE000E008UL;
-    *scb_vector_table_offset_register =
-        ( (uint32_t) src & ( 0xFFFFFFUL << 8 ) );
+	/* Initialize the C library */
+	__libc_init_array();
 
-    /* Initialize the C library */
-    __libc_init_array();
+	/* Branch to main function */
+	main();
 
-    /* Branch to main function */
-    main();
-
-    /* Infinite loop */
-    while ( 1 )
-        ;
+	
+	while ( true )
+	{
+        /* Infinite loop */
+	}
 }
