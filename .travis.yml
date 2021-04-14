@@ -1,5 +1,5 @@
 language: c
-
+dist: focal
 matrix:
   fast_finish: true
   include:
@@ -10,7 +10,7 @@ before_install:
   - rvm install 2.7
   - gem install ceedling
   - sudo apt-get update
-  - sudo apt-get install cmake ninja-build
+  - sudo apt-get install ninja-build
   - pushd .
   - cd ~
   - mkdir arm-gcc-toolchain
