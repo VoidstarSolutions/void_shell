@@ -65,15 +65,15 @@ struct vs_shell_data
 	/** Function for shell output */
 	vs_output output_func;
 	/** Index of first character in active command */
-	volatile size_t start_index;
+	size_t start_index;
 	/** Number of characters in active command */
-	volatile size_t line_length;
+	size_t line_length;
 	/** Column of user cursor.  May be less than line_length */
-	volatile size_t cursor_column;
+	size_t cursor_column;
 	/** Line number of cursor in terminal */
-	volatile size_t cursor_line;
+	size_t cursor_line;
 	/** Index in escape buffer.  0 if no escape sequence active */
-	volatile size_t escape_sequence_index;
+	size_t escape_sequence_index;
 	/** Buffer to capture escape sequences outside of character buffer */
 	char escape_sequence_buffer[VS_ESCAPE_SEQUENCE_BUFFER_SIZE];
 	/** Input buffer.  Stores active command as well as history */
@@ -103,7 +103,7 @@ static void vs_invalidate_history( struct vs_shell_data *shell )
 {
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; cmd_idx++ )
 	{
-		struct vs_command_history_entry *command = &shell->previous_commands[cmd_idx];
+		const struct vs_command_history_entry *command = &shell->previous_commands[cmd_idx];
 		if ( command->length && command->start_index >= shell->start_index &&
 		     command->start_index <= ( shell->start_index + shell->line_length  ) )
 		{
@@ -146,7 +146,7 @@ static void vs_display_history_command( struct vs_shell_data *shell )
 		shell->start_index += shell->line_length;
 	}
 
-	struct vs_command_history_entry *command =
+	const struct vs_command_history_entry *command =
 	    &shell->previous_commands[shell->requested_command_index];
 	const char *history_command_start = &shell->input_buffer[command->start_index];
 	char *      current_command_start = &shell->input_buffer[shell->start_index];
@@ -158,7 +158,6 @@ static void vs_display_history_command( struct vs_shell_data *shell )
 		current_command_start = shell->input_buffer;
 	}
 	memset( current_command_start + command->length, '\0', shell->line_length );
-	// TODO: Handle commands wrapping buffer
 	vs_output_internal( shell, history_command_start, command->length );
 	memcpy( current_command_start, history_command_start, command->length );
 	shell->cursor_column = command->length;
@@ -176,7 +175,7 @@ static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
 	(void) ( shell );
 	char *command_string = &shell->input_buffer[shell->start_index];
 
-	uint16_t updated_len = vc_complete_command( command_string, 255 );
+	size_t updated_len = vc_complete_command( command_string, 255 );
 	if ( updated_len != 0 )
 	{
 		vs_start_of_line( shell );
@@ -204,7 +203,7 @@ static inline void vs_process_command( struct vs_shell_data *shell )
 	// If the null terminator stomped on a history command invalidate it
 	vs_invalidate_history( shell );
 
-	char *command_start = &shell->input_buffer[shell->start_index];
+	const char *command_start = &shell->input_buffer[shell->start_index];
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
 	vc_print_context();
@@ -356,7 +355,6 @@ void vs_configure( vs_shell_handle shell,
 	shell->input_func   = input_func;
 	shell->output_func  = output_func;
 	shell->echo_enabled = echo_enabled;
-	;
 }
 
 void vs_run( vs_shell_handle shell )
