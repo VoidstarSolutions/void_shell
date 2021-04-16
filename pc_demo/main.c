@@ -21,7 +21,7 @@ static bool run_shell = true;
 
 static void exit_command( void ) { run_shell = false; }
 
-static const struct void_command_description exit_command_description = {
+static const struct vc_description exit_command_description = {
     .command_string = "exit",
     .command        = exit_command,
     .help_string    = "Exit the app",
@@ -31,7 +31,7 @@ int main()
 {
 	system( "/bin/stty raw" );
 	vs_init();
-	vs_configure( vs_shell_handles[0], shell_get_char, shell_output, true );
+	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
 	vc_init( vs_shell_handles[0] );
 	vc_register( &exit_command_description );
 	while ( run_shell )

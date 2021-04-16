@@ -403,7 +403,7 @@ void vs_clear_console( vs_shell_handle shell )
 	vs_home( shell );
 }
 
-void vs_output_internal( vs_shell_handle shell, const char *data, size_t length )
+void vs_output_internal( const vs_shell_handle shell, const char *data, size_t length )
 {
 	if ( shell->echo_enabled )
 	{

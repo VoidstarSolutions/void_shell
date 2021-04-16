@@ -108,6 +108,6 @@ void vs_clear_console( vs_shell_handle shell );
  * @param [in] data characters to print
  * @param [in] length number of characters to output
  **/
-void vs_output_internal( vs_shell_handle shell, const char *data, size_t length );
+void vs_output_internal( const vs_shell_handle shell, const char *data, size_t length );
 
 #endif // vs_H

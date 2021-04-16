@@ -43,7 +43,7 @@ typedef void ( *command_handler )( void );
 /**
  * Struct to define a new command. Defines a single command processor
  */
-struct void_command_description
+struct vc_description
 {
 	/** console command string */
 	const char *command_string;
@@ -55,7 +55,7 @@ struct void_command_description
 
 void vc_init( vs_shell_handle shell );
 
-bool vc_register( const struct void_command_description *command );
+bool vc_register( const struct vc_description *command );
 
 size_t vc_complete_command( char *in_out_string, size_t max_len );
 
