@@ -10,7 +10,9 @@
             "configurationProvider": "ms-vscode.cmake-tools",
             "compilerPath": "/Applications/ARM/bin/arm-none-eabi-gcc",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/Library/Ruby/Gems/2.6.0/gems/ceedling-0.31.0/vendor/unity/src",
+                "/Library/Ruby/Gems/2.6.0/gems/ceedling-0.31.0/vendor/cmock/src"
             ]
         }
     ],

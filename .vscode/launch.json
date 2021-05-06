@@ -13,6 +13,18 @@
             "cwd": "${workspaceFolder}",
             "externalConsole": true,
             "preLaunchTask": "CMakeBuild"
+        },
+        {
+            "name": "Ceedling",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/out/${command:ceedlingExplorer.debugTestExecutable}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
         }
     ]
 }

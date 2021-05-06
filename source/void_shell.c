@@ -90,7 +90,7 @@ struct vs_shell_data
 	bool dirty;
 };
 
-static struct vs_shell_data void_shell_data[VS_SHELL_COUNT];
+VS_STATIC struct vs_shell_data void_shell_data[VS_SHELL_COUNT];
 
 vs_shell_handle vs_shell_handles[VS_SHELL_COUNT];
 
@@ -99,7 +99,7 @@ vs_shell_handle vs_shell_handles[VS_SHELL_COUNT];
  * 
  * @param [in,out] shell shell data for which overrun history should be invalidated
  * */
-static void vs_invalidate_history( struct vs_shell_data *shell )
+VS_STATIC void vs_invalidate_history( struct vs_shell_data *shell )
 {
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; cmd_idx++ )
 	{
@@ -118,7 +118,7 @@ static void vs_invalidate_history( struct vs_shell_data *shell )
  * @brief Handle any cleanup and wrap back to the begining of the input buffer 
  * @param [in,out] shell shell data for handling wrapped buffer
  **/
-static void vs_buffer_wrapped( struct vs_shell_data *shell )
+VS_STATIC void vs_buffer_wrapped( struct vs_shell_data *shell )
 {
 	// copy our current command to the start of the buffer
 	memcpy( shell->input_buffer, &shell->input_buffer[shell->start_index], shell->line_length );
@@ -133,7 +133,7 @@ static void vs_buffer_wrapped( struct vs_shell_data *shell )
  * current command will be preserved
  * @param[in,out] shell Shell data to display history from
  */
-static void vs_display_history_command( struct vs_shell_data *shell )
+VS_STATIC void vs_display_history_command( struct vs_shell_data *shell )
 {
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
@@ -170,7 +170,7 @@ static void vs_display_history_command( struct vs_shell_data *shell )
  * @brief Request command completion from command processor for current command
  * @param[in,out] shell Shell Data for current command
  */
-static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
+VS_STATIC inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
 {
 	(void) ( shell );
 	char *command_string = &shell->input_buffer[shell->start_index];
@@ -195,7 +195,7 @@ static inline void vs_attempt_autocomplete( struct vs_shell_data *shell )
  * @brief Evaluate the current command
  * @param[in,out] shell Shell Data for current command
  */
-static inline void vs_process_command( struct vs_shell_data *shell )
+VS_STATIC inline void vs_process_command( struct vs_shell_data *shell )
 {
 	size_t terminator_index = shell->start_index + shell->line_length;
 	// null terminate the command
@@ -237,7 +237,7 @@ static inline void vs_process_command( struct vs_shell_data *shell )
  * @param[in] input_char Potential next character in escape sequence
  * @return false if escape sequence is invalid
  **/
-static inline bool process_escape_sequence( struct vs_shell_data *shell, char input_char )
+VS_STATIC inline bool process_escape_sequence( struct vs_shell_data *shell, char input_char )
 {
 	shell->escape_sequence_buffer[shell->escape_sequence_index++] = input_char;
 	if ( shell->escape_sequence_index == 2 && shell->escape_sequence_buffer[1] != '[' )
@@ -288,7 +288,7 @@ static inline bool process_escape_sequence( struct vs_shell_data *shell, char in
  * @param [in,out] shell Shell data to add recieved character to
  * @param [in] input_char recieved character to process
  */
-static inline void process_recieved_char( struct vs_shell_data *shell, char input_char )
+VS_STATIC inline void process_recieved_char( struct vs_shell_data *shell, char input_char )
 {
 	size_t character_index = ( shell->start_index + shell->cursor_column ) & VS_BUFFER_INDEX_MASK;
 

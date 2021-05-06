@@ -4,15 +4,9 @@
   :use_test_preprocessor: TRUE
   :use_auxiliary_dependencies: TRUE
   :build_root: build
-  :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
-  :default_task:
-    - release
 
-:release_build:
-  :output: void_shell
-  :use_assembly: FALSE
 
 :environment:
 
@@ -22,7 +16,10 @@
 :paths:
   :source:
     - ./source/**
-
+  :test:
+    - ./test/**
+  :support:
+    - ./third_party/**
   :libraries: []
 
 :defines:
@@ -30,11 +27,8 @@
   #  1) remove the trailing [] from the :common: section
   #  2) add entries to the :common: section (e.g. :test: has TEST defined)
   :common: &common_defines
-  :test:
-    - *common_defines
+    - VOID_SHELL
     - TEST
-  :release:
-    - *common_defines
 
 :cmock:
   :mock_prefix: mock_
@@ -58,7 +52,7 @@
     - HtmlDetailed
   :gcovr:
     :html_medium_threshold: 75
-    :html_high_threshold: 90
+    :html_high_threshold: 90  
 
 # LIBRARIES
 # These libraries are automatically injected into the build process. Those specified as
@@ -78,4 +72,6 @@
   :enabled:
     - stdout_pretty_tests_report
     - module_generator
+    - gcov
+    - xml_tests_report
 ...

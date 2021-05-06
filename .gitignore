@@ -4,3 +4,7 @@ doxygen/
 *.user
 
 .vscode/settings.json
+
+.scannerwork/
+
+bw-output/
