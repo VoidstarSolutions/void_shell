@@ -29,6 +29,7 @@ jobs:
   include:
     - stage: build
       script: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake -H./ -B./build -G Ninja
+    - stage: configure
       script: build-wrapper-linux-x86-64 --out-dir build/bw-output cmake --build ./build --config MinSizeRel --target all
     - stage: static analysis
       script: sonar-scanner -Dsonar.cfamily.build-wrapper-output=build/bw-output
