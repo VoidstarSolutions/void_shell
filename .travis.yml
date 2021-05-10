@@ -1,6 +1,7 @@
 language: c
 dist: focal
-
+git:
+  depth: false
 before_install:
   - rvm install 2.7
   - gem install ceedling
@@ -22,7 +23,7 @@ addons:
       secure: "SuZge89qClp6rwXCvNBUkAg0/dij0muecuE9pJdTgW0W972RD6iHYf/us9/nh2gzE3yPKUQC66dsAS5J/MmZM2dR6blpLzXKqP7rVoUsG/HD/1Ds0n6uTyp9mTIpfce7rSlU4bzSdwaTdbBvsdSagX4F3IinQOLqnwnKktmEhqKYMTPx1IgvP4vcx9/eSt4HgaoQ8EwxILmGHQctcGHC9Ev00djTlMVgPmPDp9K5BMKTt6GuMkuIIuos7bkwXKqBa9PPanB3lGezqF3Y6XELuOceLQ1xEmkX2Pug2qiUuMD1Z1QwG8BMroU2NuHWwvNnNmIdSHl+oY8snlVE7iFS5GB6eXW7QZT73whwuGhuP5q4PeGIliU7rHTV83lZ6qVS++SA3OGXkGeg3shk5e9rAQP2XkwrB3L+NPTnUEVAElydcz5NppWihH2qngOX7d3ec47nYpe+CcOqyZFNYKXETs3W04JnGt+74YkvADR9FQerwcQ4bKTKUhhU9cIVQNItxz922+j/zwSmGEDIbZfBhe1plnbpTh+z4ox6EbNK61qeN84fkF2MYJBRaQEAoMYh/lOvoSPWuQoyUjMdPoNjUQrkuNx2mFbw2DKUZk7NWI3n/9W83eK93MaVZYLwKf22/DmCXPSMXBKcU5G3VqdtCdcQ8ZMl3K9aZKd+R348RSM=" # encrypted value of your token
 jobs:
   include:
-    - stage: configure and build
+    - stage: configure, build, and test
       env: GCC_URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 
       script: 
       - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake -H./ -B./build -G Ninja
