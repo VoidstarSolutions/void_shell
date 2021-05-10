@@ -51,13 +51,6 @@
 #define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (uint8_t) 2 )
 #endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
 
-// Allow unit tests to call static functions
-#ifndef TEST
-#define VS_STATIC static
-#else
-#define VS_STATIC  
-#endif
-
 struct vs_shell_data;
 
 typedef struct vs_shell_data *vs_shell_handle;

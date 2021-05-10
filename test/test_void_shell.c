@@ -30,20 +30,46 @@
  *
  */
 
-#include "void_shell.h"
+#include "void_shell.c"
 
 #include <unity.h>
 
 #include "void_command.h"
 #include "void_shell_utilities.h"
 #include <printf.h>
+#include <stdlib.h>
 
+int8_t shell_get_char( void ) { return getchar(); }
+
+//NOLINTNEXTLINE
 void _putchar( char character ) { putchar( character ); }
 
-void setUp( void ) {}
+void shell_output( const char *data, size_t length )
+{
+	for ( size_t i = 0; i != length; ++i )
+	{
+		_putchar( data[i] );
+	}
+}
 
-void tearDown( void ) {}
+void setUp( void )
+{
+	vs_init();
+	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
+	vc_init( vs_shell_handles[0] );
+}
 
-void test_vs_invalidate_history( void ) { TEST_ASSERT( true ); }
+void tearDown( void ) { system( "/bin/stty cooked" ); }
 
-void test_vs_test_fail( void ) { TEST_ASSERT( false ); }
+void test_vs_init( void )
+{
+	vs_init();
+	TEST_ASSERT( true );
+}
+
+void test_vs_invalidate_history( void )
+{
+
+	vs_invalidate_history( vs_shell_handles[0] );
+	TEST_ASSERT( true );
+}
