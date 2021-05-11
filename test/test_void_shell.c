@@ -30,7 +30,7 @@
  *
  */
 
-#include "void_shell.c"
+#include "void_shell.h"
 
 #include <unity.h>
 
@@ -51,6 +51,20 @@ void shell_output( const char *data, size_t length )
 		_putchar( data[i] );
 	}
 }
+
+void vs_invalidate_history( struct vs_shell_data *shell );
+
+void vs_buffer_wrapped( struct vs_shell_data *shell );
+
+void vs_display_history_command( struct vs_shell_data *shell );
+
+void vs_attempt_autocomplete( struct vs_shell_data *shell );
+
+void vs_process_command( struct vs_shell_data *shell );
+
+bool process_escape_sequence( struct vs_shell_data *shell, char input_char );
+
+void process_recieved_char( struct vs_shell_data *shell, char input_char );
 
 void setUp( void )
 {

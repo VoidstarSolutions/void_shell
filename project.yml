@@ -2,11 +2,10 @@
 :project:
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
-  :use_auxiliary_dependencies: TRUE
+  :use_auxiliary_dependencies: FALSE
   :build_root: build
   :test_file_prefix: test_
   :which_ceedling: gem
-
 
 :environment:
 
@@ -26,9 +25,15 @@
   # in order to add common defines:
   #  1) remove the trailing [] from the :common: section
   #  2) add entries to the :common: section (e.g. :test: has TEST defined)
-  :common: &common_defines
-    - VOID_SHELL
-    - TEST
+  :common: &common_defines []
+  :test:
+    - *common_defines
+    - __TEST__
+  :test_preprocess:
+    - *common_defines
+    - __TEST__
+  :release:
+    - *common_defines
 
 :cmock:
   :mock_prefix: mock_
@@ -50,6 +55,7 @@
 :gcov:
   :reports:
     - HtmlDetailed
+    - SonarQube
   :gcovr:
     :html_medium_threshold: 75
     :html_high_threshold: 90  

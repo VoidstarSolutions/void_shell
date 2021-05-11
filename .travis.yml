@@ -29,4 +29,5 @@ jobs:
       - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake -H./ -B./build -G Ninja
       - build-wrapper-linux-x86-64 --out-dir build/bw-output cmake --build ./build --config MinSizeRel --target all
       - ceedling test:all
-      - sonar-scanner -Dsonar.cfamily.build-wrapper-output=build/bw-output
+      - ceedling gcov:all
+      - sonar-scanner -Dsonar.cfamily.build-wrapper-output=build/bw-output -Dsonar.cfamily.gcov=build/gcov/out
