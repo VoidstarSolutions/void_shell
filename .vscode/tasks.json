@@ -4,7 +4,7 @@
         {
             "type": "shell",
             "label": "CMakeBuild",
-            "command": "zsh build.sh",
+            "command": "zsh scripts/build.sh",
             "args": [],
             "options": {},
             "problemMatcher": [],
