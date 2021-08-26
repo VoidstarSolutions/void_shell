@@ -83,7 +83,6 @@ void test_vs_init( void )
 
 void test_vs_invalidate_history( void )
 {
-
 	vs_invalidate_history( vs_shell_handles[0] );
 	TEST_ASSERT( true );
 }

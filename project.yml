@@ -10,7 +10,7 @@
 :environment:
 
 :extension:
-  :executable: 
+  :executable:
 
 :paths:
   :source:
@@ -43,11 +43,11 @@
     - :ignore
     - :callback
   :treat_as:
-    uint8:    HEX8
-    uint16:   HEX16
-    uint32:   UINT32
-    int8:     INT8
-    bool:     UINT8
+    uint8: HEX8
+    uint16: HEX16
+    uint32: UINT32
+    int8: INT8
+    bool: UINT8
 
 # Add -gcov to the plugins list to make sure of the gcov plugin
 # You will need to have gcov and gcovr both installed to make it work.
@@ -57,8 +57,8 @@
     - HtmlDetailed
     - SonarQube
   :gcovr:
-    :html_medium_threshold: 75
-    :html_high_threshold: 90  
+    # SonarQube XML report filename.
+    :sonarqube_artifact_filename: sonar_coverage.xml
 
 # LIBRARIES
 # These libraries are automatically injected into the build process. Those specified as
@@ -68,7 +68,7 @@
   :placement: :end
   :flag: "-l${1}"
   :path_flag: "-L ${1}"
-  :system: []    # for example, you might list 'm' to grab the math library
+  :system: [] # for example, you might list 'm' to grab the math library
   :test: []
   :release: []
 
@@ -80,4 +80,3 @@
     - module_generator
     - gcov
     - xml_tests_report
-...

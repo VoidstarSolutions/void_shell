@@ -24,10 +24,10 @@ addons:
 jobs:
   include:
     - stage: configure, build, and test
-      env: GCC_URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 
-      script: 
-      - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake -H./ -B./build -G Ninja
-      - build-wrapper-linux-x86-64 --out-dir build/bw-output cmake --build ./build --config MinSizeRel --target all
-      - ceedling test:all
-      - ceedling gcov:all
-      - sonar-scanner -Dsonar.cfamily.build-wrapper-output=build/bw-output -Dsonar.cfamily.gcov=build/gcov/out
+      env: GCC_URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2
+      script:
+        - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_BUILD_TYPE:STRING=MinSizeRel -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake -H./ -B./build -G Ninja
+        - build-wrapper-linux-x86-64 --out-dir build/bw-output cmake --build ./build --config MinSizeRel --target all
+        - ceedling test:all
+        - ceedling gcov:all utils:gcov
+        - sonar-scanner -Dsonar.cfamily.build-wrapper-output=build/bw-output -Dsonar.cfamily.gcov=build/artifacts/gcov/sonar_coverage.xml

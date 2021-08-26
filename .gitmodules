@@ -7,3 +7,6 @@
 [submodule "third_party/cmock"]
 	path = third_party/cmock
 	url = https://github.com/ThrowTheSwitch/CMock.git
+[submodule "third_party/doxygen_awesome"]
+	path = third_party/doxygen_awesome
+	url = https://github.com/jothepro/doxygen-awesome-css.git
