@@ -4,4 +4,4 @@ sonar-scanner \
   -Dsonar.sources=./source \
   -Dsonar.host.url=https://sonarcloud.io \
   -Dsonar.cfamily.compile-commands=build/compile_commands.json \
-  -Dsonar.cfamily.gcov=build/artifacts/gcov/sonar_coverage.xml
+  -Dsonar.coverageReportPaths=build/artifacts/gcov/sonar_coverage.xml
