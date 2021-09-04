@@ -37,9 +37,13 @@ pipelines:
                     command: cmake
                     run_if: passed
                 - exec:
+                    command: ls
+                - exec:
                     arguments:
                       - build
                     command: cd
+                - exec:
+                    command: ls
                 - exec:
                     command: ninja
                     run_if: passed
