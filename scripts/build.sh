@@ -1,3 +1,1 @@
-cmake
-cd build
-ninja
+build-wrapper-macosx-x86 --out-dir build/bw-output cmake --build ./build --config MinSizeRel --target all

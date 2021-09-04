@@ -27,23 +27,10 @@ pipelines:
               tasks:
                 - exec:
                     arguments:
-                      - -DCMAKE_SOURCE_DIR=./
-                      - -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
-                      - -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
-                      - -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake
-                      - -H./
-                      - -B./build
-                      - -GNinja
-                    command: cmake
+                      - scripts/configure.sh
+                    command: bash
                     run_if: passed
-                - exec:
-                    command: ls
                 - exec:
                     arguments:
-                      - build
-                    command: cd
-                - exec:
-                    command: ls
-                - exec:
-                    command: ninja
-                    run_if: passed
+                      - scripts/build.sh
+                    command: bash
