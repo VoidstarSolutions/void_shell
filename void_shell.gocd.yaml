@@ -38,6 +38,8 @@ pipelines:
                     run_if: passed
                 - exec:
                     arguments:
-                      - --build=./build
-                    command: cmake
+                      - build
+                    command: cd
+                - exec:
+                    command: ninja
                     run_if: passed
