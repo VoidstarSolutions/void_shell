@@ -1,6 +1,7 @@
 format_version: 10
 pipelines:
   void_shell:
+    group: VoidstarSolutions
     label_template: ${COUNT}
     lock_behavior: none
     display_order: -1
