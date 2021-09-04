@@ -1,0 +1,48 @@
+format_version: 10
+pipelines:
+  void_shell:
+    group: defaultGroup
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: -1
+    secure_variables:
+      SONAR_TOKEN: AES:TXSP0yfnao0xY6tPjWVflw==:nuNg5W43p1vooHv4YBSprl7zP7nkA36nhAHsUyKZAqAU/g3Ei55vFNVkrEV+7z0Z
+    materials:
+      git-d841d48:
+        git: git@github.com:VoidstarSolutions/void_shell.git
+        shallow_clone: false
+        auto_update: true
+        branch: master
+    stages:
+    - build:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+          allow_only_on_success: false
+        jobs:
+          embedded:
+            timeout: 0
+            tasks:
+            - exec:
+                arguments:
+                - -DCMAKE_SOURCE_DIR=./
+                - -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+                - -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
+                - -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake
+                - -H./
+                - -B./build
+                - -GNinja
+                command: cmake
+                run_if: passed
+            - exec:
+                command: ls
+                run_if: passed
+            - exec:
+                arguments:
+                - --build ./build
+                - --config MinSizeRel
+                - --target all
+                command: cmake
+                run_if: passed
