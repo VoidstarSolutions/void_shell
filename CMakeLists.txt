@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.20.0)
 
 project(VOID_SHELL LANGUAGES C)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 add_subdirectory(third_party)
 
 add_subdirectory(source)
