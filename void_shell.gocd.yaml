@@ -14,31 +14,30 @@ pipelines:
         auto_update: true
         branch: master
     stages:
-    - build:
-        fetch_materials: true
-        keep_artifacts: false
-        clean_workspace: false
-        approval:
-          type: success
-          allow_only_on_success: false
-        jobs:
-          embedded:
-            timeout: 0
-            tasks:
-            - exec:
-                arguments:
-                - -DCMAKE_SOURCE_DIR=./
-                - -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
-                - -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
-                - -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake
-                - -H./
-                - -B./build
-                - -GNinja
-                command: cmake
-                run_if: passed
-            - exec:
-                command: ls
-                run_if: passed
-            - exec:
-                command: cmake --build ./build --config MinSizeRel --target all
-                run_if: passed
+      - build:
+          fetch_materials: true
+          keep_artifacts: false
+          clean_workspace: false
+          approval:
+            type: success
+            allow_only_on_success: false
+          jobs:
+            embedded:
+              timeout: 0
+              tasks:
+                - exec:
+                    arguments:
+                      - -DCMAKE_SOURCE_DIR=./
+                      - -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+                      - -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
+                      - -DCMAKE_TOOLCHAIN_FILE=toolchain.gcc.cmake
+                      - -H./
+                      - -B./build
+                      - -GNinja
+                    command: cmake
+                    run_if: passed
+                - exec:
+                    arguments:
+                      - --build=./build
+                    command: cmake
+                    run_if: passed
