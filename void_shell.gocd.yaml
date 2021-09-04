@@ -42,6 +42,14 @@ pipelines:
             type: success
             allow_only_on_success: true
           jobs:
+            test:
+              timeout: 0
+              tasks:
+                - exec:
+                    arguments:
+                      - scripts/run_tests.sh
+                    command: bash
+                    run_if: passed
             lint:
               timeout: 0
               tasks:

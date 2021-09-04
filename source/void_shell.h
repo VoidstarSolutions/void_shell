@@ -60,8 +60,8 @@
 
 struct vs_shell_data;
 
-typedef struct vs_shell_data *vs_shell_handle;
-
+typedef struct vs_shell_data * vs_shell_handle;
+typedef const struct vs_shell_data * const_vs_shell_handle;
 /** 
  * @brief vs_shell_data will be an array of pointers to shell
  * data of size VS_SHELL_COUNT
@@ -115,6 +115,6 @@ void vs_clear_console( vs_shell_handle shell );
  * @param [in] data characters to print
  * @param [in] length number of characters to output
  **/
-void vs_output_internal( const vs_shell_handle shell, const char *data, size_t length );
+void vs_output_internal( const const_vs_shell_handle shell, const char *data, size_t length );
 
 #endif // vs_H
