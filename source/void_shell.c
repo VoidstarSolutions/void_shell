@@ -58,7 +58,7 @@ struct vs_command_history_entry
 /** 
  * @brief Struct to hold shell data 
  **/
-struct vs_shell_data
+struct vs_data
 {
 	/** Function to retrieve next input character */
 	vs_get_char input_func;
@@ -90,16 +90,16 @@ struct vs_shell_data
 	bool dirty;
 };
 
-static struct vs_shell_data void_shell_data[VS_SHELL_COUNT];
+static struct vs_data void_shell_data[VS_SHELL_COUNT];
 
-vs_shell_handle vs_shell_handles[VS_SHELL_COUNT];
+vs_handle vs_shell_handles[VS_SHELL_COUNT];
 
 /** 
  * @brief Invalidate any command completion strings that we've overrun after wrapping 
  * 
  * @param [in,out] shell shell data for which overrun history should be invalidated
  * */
-VS_STATIC void vs_invalidate_history( struct vs_shell_data *shell )
+VS_STATIC void vs_invalidate_history( struct vs_data *shell )
 {
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; cmd_idx++ )
 	{
@@ -118,7 +118,7 @@ VS_STATIC void vs_invalidate_history( struct vs_shell_data *shell )
  * @brief Handle any cleanup and wrap back to the begining of the input buffer 
  * @param [in,out] shell shell data for handling wrapped buffer
  **/
-VS_STATIC void vs_buffer_wrapped( struct vs_shell_data *shell )
+VS_STATIC void vs_buffer_wrapped( struct vs_data *shell )
 {
 	// copy our current command to the start of the buffer
 	memcpy( shell->input_buffer, &shell->input_buffer[shell->start_index], shell->line_length );
@@ -133,7 +133,7 @@ VS_STATIC void vs_buffer_wrapped( struct vs_shell_data *shell )
  * current command will be preserved
  * @param[in,out] shell Shell data to display history from
  */
-VS_STATIC void vs_display_history_command( struct vs_shell_data *shell )
+VS_STATIC void vs_display_history_command( struct vs_data *shell )
 {
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
@@ -170,7 +170,7 @@ VS_STATIC void vs_display_history_command( struct vs_shell_data *shell )
  * @brief Request command completion from command processor for current command
  * @param[in,out] shell Shell Data for current command
  */
-VS_STATIC void vs_attempt_autocomplete( struct vs_shell_data *shell )
+VS_STATIC void vs_attempt_autocomplete( struct vs_data *shell )
 {
 	(void) ( shell );
 	char *command_string = &shell->input_buffer[shell->start_index];
@@ -195,7 +195,7 @@ VS_STATIC void vs_attempt_autocomplete( struct vs_shell_data *shell )
  * @brief Evaluate the current command
  * @param[in,out] shell Shell Data for current command
  */
-VS_STATIC void vs_process_command( struct vs_shell_data *shell )
+VS_STATIC void vs_process_command( struct vs_data *shell )
 {
 	size_t terminator_index = shell->start_index + shell->line_length;
 	// null terminate the command
@@ -237,7 +237,7 @@ VS_STATIC void vs_process_command( struct vs_shell_data *shell )
  * @param[in] input_char Potential next character in escape sequence
  * @return false if escape sequence is invalid
  **/
-VS_STATIC bool process_escape_sequence( struct vs_shell_data *shell, char input_char )
+VS_STATIC bool process_escape_sequence( struct vs_data *shell, char input_char )
 {
 	shell->escape_sequence_buffer[shell->escape_sequence_index++] = input_char;
 	if ( shell->escape_sequence_index == 2 && shell->escape_sequence_buffer[1] != '[' )
@@ -288,7 +288,7 @@ VS_STATIC bool process_escape_sequence( struct vs_shell_data *shell, char input_
  * @param [in,out] shell Shell data to add recieved character to
  * @param [in] input_char recieved character to process
  */
-VS_STATIC void process_recieved_char( struct vs_shell_data *shell, char input_char )
+VS_STATIC void process_recieved_char( struct vs_data *shell, char input_char )
 {
 	size_t character_index = ( shell->start_index + shell->cursor_column ) & VS_BUFFER_INDEX_MASK;
 
@@ -330,24 +330,24 @@ void vs_init()
 {
 	for ( unsigned shell_index = 0; shell_index < VS_SHELL_COUNT; ++shell_index )
 	{
-		vs_shell_handle shell         = &void_shell_data[shell_index];
+		vs_handle shell               = &void_shell_data[shell_index];
 		vs_shell_handles[shell_index] = shell;
-		memset( shell, 0, sizeof( struct vs_shell_data ) );
+		memset( shell, 0, sizeof( struct vs_data ) );
 		vs_clear_console( shell );
 	}
 }
 
-void vs_configure( vs_shell_handle shell,
-                   vs_get_char     input_func,
-                   vs_output       output_func,
-                   bool            echo_enabled )
+void vs_configure( vs_handle   shell,
+                   vs_get_char input_func,
+                   vs_output   output_func,
+                   bool        echo_enabled )
 {
 	shell->input_func   = input_func;
 	shell->output_func  = output_func;
 	shell->echo_enabled = echo_enabled;
 }
 
-void vs_run( vs_shell_handle shell )
+void vs_run( vs_handle shell )
 {
 
 	int8_t input_char = shell->input_func();
@@ -383,7 +383,7 @@ void vs_run( vs_shell_handle shell )
 	}
 }
 
-void vs_clear_console( vs_shell_handle shell )
+void vs_clear_console( vs_handle shell )
 {
 	shell->cursor_column = 0;
 	shell->cursor_line   = 0;
@@ -391,7 +391,7 @@ void vs_clear_console( vs_shell_handle shell )
 	vs_home( shell );
 }
 
-void vs_output_internal( const_vs_shell_handle shell, const char *data, size_t length )
+void vs_output_internal( const_vs_handle shell, const char *data, size_t length )
 {
 	if ( shell->echo_enabled )
 	{

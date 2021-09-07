@@ -49,30 +49,30 @@ enum vs_color
 	COLOR_WHITE,
 };
 
-void vs_start_of_line( vs_shell_handle shell );
+void vs_start_of_line( const_vs_handle shell );
 
-void vs_erase_after_cursor( vs_shell_handle shell );
+void vs_erase_after_cursor( const_vs_handle shell );
 
-void vs_left( vs_shell_handle shell );
+void vs_left( const_vs_handle shell );
 
-void vs_right( vs_shell_handle shell );
+void vs_right( const_vs_handle shell );
 
-void vs_clear_text( vs_shell_handle shell );
+void vs_clear_text( const_vs_handle shell );
 
-void vs_home( vs_shell_handle shell );
+void vs_home( const_vs_handle shell );
 
-void vs_reset_format( vs_shell_handle shell );
+void vs_reset_format( const_vs_handle shell );
 
-void vs_more_bold( vs_shell_handle shell );
+void vs_more_bold( const_vs_handle shell );
 
-void vs_less_bold( vs_shell_handle shell );
+void vs_less_bold( const_vs_handle shell );
 
-void vs_underline( vs_shell_handle shell );
+void vs_underline( const_vs_handle shell );
 
-void vs_blink( vs_shell_handle shell );
+void vs_blink( const_vs_handle shell );
 
-void vs_text_color( vs_shell_handle shell, enum vs_color color );
+void vs_text_color( const_vs_handle shell, enum vs_color color );
 
-void vs_background_color( vs_shell_handle shell, enum vs_color );
+void vs_background_color( const_vs_handle shell, enum vs_color );
 
 #endif // vs_UTILITIES_H

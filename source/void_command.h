@@ -53,7 +53,7 @@ struct vc_description
 	const char *help_string;
 };
 
-void vc_init( vs_shell_handle shell );
+void vc_init( vs_handle shell );
 
 bool vc_register( const struct vc_description *command );
 

@@ -52,7 +52,7 @@
 
 struct vc_data
 {
-	vs_shell_handle              shell;
+	vs_handle                    shell;
 	uint16_t                     registered_command_count;
 	struct vc_description const *registered_commands[VC_MAX_COMMANDS];
 	struct vc_description const *active_modal_command;
@@ -85,7 +85,7 @@ static const struct vc_description clear_command_description = {
     .help_string    = "Clear the terminal",
 };
 
-void vc_init( vs_shell_handle shell )
+void vc_init( vs_handle shell )
 {
 	struct vc_data *command           = &void_command_instance;
 	command->shell                    = shell;

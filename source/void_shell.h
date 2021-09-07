@@ -55,18 +55,18 @@
 #ifndef __TEST__
 #define VS_STATIC static
 #else
-#define VS_STATIC  
+#define VS_STATIC
 #endif
 
-struct vs_shell_data;
+struct vs_data;
 
-typedef struct vs_shell_data * vs_shell_handle;
-typedef const struct vs_shell_data * const_vs_shell_handle;
+typedef struct vs_data *      vs_handle;
+typedef const struct vs_data *const_vs_handle;
 /** 
  * @brief vs_shell_data will be an array of pointers to shell
  * data of size VS_SHELL_COUNT
  **/
-extern vs_shell_handle vs_shell_handles[];
+extern vs_handle vs_shell_handles[];
 
 /**
  * @brief Function to get next input character for shell
@@ -75,7 +75,7 @@ extern vs_shell_handle vs_shell_handles[];
  **/
 typedef int8_t ( *vs_get_char )();
 
-typedef void (*vs_output)( const char *data, size_t length );
+typedef void ( *vs_output )( const char *data, size_t length );
 
 /**
  * @brief Initialize the memories for shell
@@ -91,21 +91,24 @@ void vs_init();
  * @param [in] echo_enabled Whether the shell should echo typed characters,
  * newlines, and escape sequences
  **/
-void vs_configure( vs_shell_handle shell, vs_get_char input_func, vs_output output_func, bool echo_enabled );
+void vs_configure( vs_handle   shell,
+                   vs_get_char input_func,
+                   vs_output   output_func,
+                   bool        echo_enabled );
 
 /**
  * @brief Service CLI input
  * 
  * @param [in,out] shell Shell to service
  **/
-void vs_run( vs_shell_handle shell );
+void vs_run( vs_handle shell );
 
 /**
  * @brief Clear the console of text and reset to first line/column
  * 
  * @param [in,out] shell Shell to clear console
  **/
-void vs_clear_console( vs_shell_handle shell );
+void vs_clear_console( vs_handle shell );
 
 /**
  * @brief internal function to handle output from shell
@@ -115,6 +118,6 @@ void vs_clear_console( vs_shell_handle shell );
  * @param [in] data characters to print
  * @param [in] length number of characters to output
  **/
-void vs_output_internal( const const_vs_shell_handle shell, const char *data, size_t length );
+void vs_output_internal( const const_vs_handle shell, const char *data, size_t length );
 
 #endif // vs_H
