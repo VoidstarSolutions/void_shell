@@ -1,0 +1,15 @@
+version: 1.0.{build}
+build_cloud: Process
+install:
+- sh: git submodule update --init --recursive
+build_script:
+- sh: >-
+    bash scripts/configure.sh
+
+    bash scripts/build.sh
+test_script:
+- sh: >-
+    bash run_tests.sh
+
+    bash run_analysis.sh
+...
