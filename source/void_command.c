@@ -188,7 +188,7 @@ void vc_handle_command( const char *command_string )
 
 void vc_print_context( void )
 {
-	struct vc_data *command = &void_command_instance;
+	const struct vc_data *command = &void_command_instance;
 	vs_text_color( command->shell, COLOR_YELLOW );
 	if ( command->active_modal_command )
 	{
