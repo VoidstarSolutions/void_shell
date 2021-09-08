@@ -9,7 +9,7 @@ build_script:
     bash scripts/build.sh
 test_script:
 - sh: >-
-    bash run_tests.sh
+    bash scripts/run_tests.sh
 
-    bash run_analysis.sh
+    bash scripts/run_analysis.sh
 ...
