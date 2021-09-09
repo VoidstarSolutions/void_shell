@@ -1,0 +1,28 @@
+steps:
+  - command: "bash scripts/configure.sh"
+    label: "CMake Configure"
+    artifact_paths: "build/**/*"
+
+  - wait
+
+  - command:
+      - buildkite-agent artifact download "build/*" .
+      - bash scripts/build.sh
+    label: "CMake Build"
+    artifact_paths: "build/**/*"
+
+  - wait
+
+  - command:
+      - bash scripts/run_tests.sh
+    label: "Ceedling Tests"
+    artifact_paths: "build/**/*"
+
+  - wait
+
+  - command:
+      - buildkite-agent artifact download "build/*" .
+      - bash scripts/run_analysis.sh
+    label: "SonarCloud Analysis"
+    env:
+      SONAR_TOKEN: "80641e654940ef85318f565a7692fee00e4e01d8"
