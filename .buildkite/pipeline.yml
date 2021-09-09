@@ -1,7 +1,7 @@
 steps:
   - command: "bash scripts/configure.sh"
     label: "CMake Configure"
-    artifact_paths: "builds/**/*"
+    artifact_paths: "build/**/*"
 
   - wait
 
