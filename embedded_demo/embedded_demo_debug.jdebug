@@ -4,9 +4,9 @@
 *                         www.segger.com                             *
 **********************************************************************
                                                                       
-File          : /Users/zheylmun/dev/voidstar/void_shell/demo/demo_debug.jdebug
-Created       : 25 Nov 2020 17:57
-Ozone Version : V3.20c
+File          : /Users/zheylmun/dev/voidstar/void_shell/embedded_demo/embedded_demo_debug.jdebug
+Created       : 10 Oct 2021 17:53
+Ozone Version : V3.20e
 */
 
 /*********************************************************************
@@ -22,17 +22,17 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.AddPathSubstitute ("/Users/zheylmun/dev/voidstar/void_shell/demo", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/Users/zheylmun/dev/voidstar/void_shell/embedded_demo", "$(ProjectDir)");
+  Project.AddPathSubstitute ("/users/zheylmun/dev/voidstar/void_shell/embedded_demo", "$(ProjectDir)");
   Project.SetDevice ("ATSAMC21J18");
   Project.SetHostIF ("USB", "752001607");
   Project.SetTargetIF ("SWD");
-  Project.SetTIFSpeed ("12 MHz");
+  Project.SetTIFSpeed ("4 MHz");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M0.svd");
-  Project.AddSvdFile ("/Users/zheylmun/dev/voidstar/void_explorer/voidstar_sam_c21_drivers/samc21/svd/ATSAMC21J18A.svd");
   //
   // User settings
   //
-  File.Open ("/Users/zheylmun/dev/voidstar/void_shell/build/artifacts/release/void_shell");
+  File.Open ("/Users/zheylmun/dev/voidstar/void_shell/build/embedded_demo/void_shell_demo.elf");
 }
 
 /*********************************************************************
