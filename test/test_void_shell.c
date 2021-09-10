@@ -64,7 +64,7 @@ void vs_process_command( struct vs_shell_data *shell );
 
 bool process_escape_sequence( struct vs_shell_data *shell, char input_char );
 
-void process_recieved_char( struct vs_shell_data *shell, char input_char );
+void process_received_char( struct vs_shell_data *shell, char input_char );
 
 void setUp( void )
 {
