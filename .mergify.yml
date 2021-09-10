@@ -10,4 +10,3 @@ pull_request_rules:
         strict: true
         strict_method: rebase
         method: merge
-        update_bot_account: luminarci
