@@ -1,0 +1,14 @@
+queue_rules:
+  - name: default
+    conditions:
+      - check-success=buildkite/void-shell
+
+pull_request_rules:
+  - name: Automatic merge on approval
+    conditions:
+      - "#approved-reviews-by>=1"
+    actions:
+      queue:
+        name: default
+        method: rebase
+        rebase_fallback: none
