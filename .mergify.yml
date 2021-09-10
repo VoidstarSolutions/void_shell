@@ -1,14 +1,13 @@
-queue_rules:
-  - name: default
-    conditions:
-      - check-success=buildkite/void-shell
-
 pull_request_rules:
-  - name: Automatic merge on approval
+  - name: semi-linear merge
     conditions:
-      - "#approved-reviews-by>=1"
+      - label=automerge
+      - check-success=buildkite/void-shell
+      - "#review-requested=0"
+      - "#changes-requested-reviews-by=0"
     actions:
-      queue:
-        name: default
-        method: rebase
-        rebase_fallback: none
+      merge:
+        strict: true
+        strict_method: rebase
+        method: merge
+        update_bot_account: luminarci
