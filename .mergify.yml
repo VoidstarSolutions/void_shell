@@ -1,0 +1,13 @@
+pull_request_rules:
+  - name: semi-linear merge
+    conditions:
+      - label=automerge
+      - check-success=buildkite/void-shell
+      - "#review-requested=0"
+      - "#changes-requested-reviews-by=0"
+    actions:
+      merge:
+        strict: true
+        strict_method: rebase
+        method: merge
+        update_bot_account: luminarci
