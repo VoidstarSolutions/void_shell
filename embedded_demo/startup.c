@@ -14,6 +14,7 @@ extern uint32_t _estack;
 
 int  main( void );
 void reset_handler( void );
+void dummy_handler( void );
 
 void __libc_init_array( void );
 
@@ -21,6 +22,7 @@ typedef struct
 {
 	void *stack;
 	void ( *reset_func )();
+	void ( *dummy_handlers[46] )();
 } reset_vector_t;
 
 /**
@@ -30,8 +32,9 @@ typedef struct
  **/
 __attribute__( ( section( ".vectors" ), used ) ) const reset_vector_t exception_table = {
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-    .stack      = (void *) ( &_estack ),
-    .reset_func = &reset_handler, /* Reset to our entry point */
+    .stack          = (void *) ( &_estack ),
+    .reset_func     = &reset_handler, /* Reset to our entry point */
+    .dummy_handlers = { &dummy_handler },
 };
 
 /**
@@ -69,9 +72,15 @@ __attribute__( ( noreturn ) ) void reset_handler( void )
 	/* Branch to main function */
 	main();
 
-	
 	while ( true )
 	{
-        /* Infinite loop */
+		/* Infinite loop */
+	}
+}
+
+void dummy_handler( void )
+{
+	while ( 1 )
+	{
 	}
 }
