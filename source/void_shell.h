@@ -112,12 +112,13 @@ void vs_clear_console( vs_handle shell );
 
 /**
  * @brief internal function to handle output from shell
- * DO NOT CALL
+ * Respects shell's echo settings.  If echo is disabled, the output function is
+ * not called.
  * 
  * @param [in] shell Shell for output
  * @param [in] data characters to print
  * @param [in] length number of characters to output
  **/
-void vs_output_internal( const const_vs_handle shell, const char *data, size_t length );
+void vs_output_internal( const_vs_handle shell, const char *data, size_t length );
 
 #endif // vs_H
