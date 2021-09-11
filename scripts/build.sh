@@ -1,1 +1,1 @@
-build-wrapper-macosx-x86 --out-dir build cmake --build ./build --config MinSizeRel --target all
+cmake --build ./build --config MinSizeRel --target all
