@@ -36,46 +36,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifndef VS_SHELL_COUNT
-/** Default is a single shell */
-#define VS_SHELL_COUNT ( (uint8_t) 1 )
-#endif // VS_SHELL_COUNT
-
-#ifndef VS_BUFFER_SIZE_POW_TWO
-/** Default buffer size of 2^8, or 256 characters */
-#define VS_BUFFER_SIZE_POW_TWO ( (uint8_t) 8 )
-#endif // VS_BUFFER_SIZE_POW_TWO
-
-#ifndef VS_COMMAND_HISTORY_COUNT_POW_TWO
-/** Default history length of 2^2, or 4 commands */
-#define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (uint8_t) 2 )
-#endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
-
-// Allow unit tests to call static functions
-#ifndef __TEST__
-#define VS_STATIC static
-#else
-#define VS_STATIC
-#endif
-
-struct vs_data;
+#include "void_shell_internal.h"
 
 typedef struct vs_data *      vs_handle;
 typedef const struct vs_data *const_vs_handle;
+
 /** 
  * @brief vs_shell_data will be an array of pointers to shell
  * data of size VS_SHELL_COUNT
  **/
 extern vs_handle vs_shell_handles[];
-
-/**
- * @brief Function to get next input character for shell
- * Must be provided by console application
- * @return Negative if not available, or ASCII value from 0-127
- **/
-typedef int8_t ( *vs_get_char )();
-
-typedef void ( *vs_output )( const char *data, size_t length );
 
 /**
  * @brief Initialize the memories for shell
@@ -86,8 +56,11 @@ void vs_init();
  * @brief Configure a shell with the provided input function
  * 
  * @param [in,out] shell The shell to configure
- * @param [in] input_func vs_get_char function pointer to retrieve
- * next input character for shell
+ * @param [in] input_func int8_t ( *vs_get_char )() function pointer to 
+ * retrieve next input character for shell
+ * @param [in] output_func 
+ * void ( *vs_output )( const char *data, size_t length ) function pointer
+ * to handle shell output
  * @param [in] echo_enabled Whether the shell should echo typed characters,
  * newlines, and escape sequences
  **/
@@ -112,12 +85,13 @@ void vs_clear_console( vs_handle shell );
 
 /**
  * @brief internal function to handle output from shell
- * DO NOT CALL
+ * Respects shell's echo settings.  If echo is disabled, the output function is
+ * not called.
  * 
  * @param [in] shell Shell for output
  * @param [in] data characters to print
  * @param [in] length number of characters to output
  **/
-void vs_output_internal( const const_vs_handle shell, const char *data, size_t length );
+void vs_output_internal( const_vs_handle shell, const char *data, size_t length );
 
 #endif // vs_H

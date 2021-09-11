@@ -9,14 +9,16 @@ steps:
       - buildkite-agent artifact download "build/*" .
       - bash scripts/build.sh
     label: "CMake Build"
-    artifact_paths: "build/**/*"
+    artifact_paths: "build/compile_commands.json"
 
   - wait
 
   - command:
       - bash scripts/run_tests.sh
     label: "Ceedling Tests"
-    artifact_paths: "build/**/*"
+    artifact_paths:
+      - build/compile_commands.json
+      - build/artifacts/gcov/sonar_coverage.xml
 
   - wait
 

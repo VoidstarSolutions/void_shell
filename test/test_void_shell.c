@@ -38,11 +38,24 @@
 #include "void_shell_utilities.h"
 #include <printf.h>
 #include <stdlib.h>
+#include <string.h>
 
 int8_t shell_get_char( void ) { return getchar(); }
 
+static uint8_t output_index = 0;
+static char    output_buffer[256];
+
+static void reset_buffer()
+{
+	for ( uint8_t index = 0; index < output_index; ++index )
+	{
+		output_buffer[index] = '\0';
+	}
+	output_index = 0;
+}
+
 //NOLINTNEXTLINE
-void _putchar( char character ) { putchar( character ); }
+void _putchar( char character ) { output_buffer[output_index++] = character; }
 
 void shell_output( const char *data, size_t length )
 {
@@ -85,4 +98,22 @@ void test_vs_invalidate_history( void )
 {
 	vs_invalidate_history( vs_shell_handles[0] );
 	TEST_ASSERT( true );
+}
+
+void test_vs_output_internal( void )
+{
+	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
+	reset_buffer();
+	const char *test_out = "A,B,C,D";
+	// Test with echo enabled
+	vs_output_internal( vs_shell_handles[0], test_out, strlen( test_out ) );
+	TEST_ASSERT_EQUAL_CHAR( 'A', output_buffer[0] );
+	TEST_ASSERT_EQUAL_CHAR( 'D', output_buffer[6] );
+	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[7] );
+	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, false );
+	reset_buffer();
+	// Test with echo disabled
+	vs_output_internal( vs_shell_handles[0], test_out, strlen( test_out ) );
+	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[0] );
+	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[6] );
 }
