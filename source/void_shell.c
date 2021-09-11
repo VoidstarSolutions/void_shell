@@ -40,9 +40,9 @@
 #include "void_command.h"
 #include "void_shell_utilities.h"
 
-static struct vs_data void_shell_data[VS_SHELL_COUNT];
+VS_STATIC struct vs_data vs_data[VS_SHELL_COUNT];
 
-vs_handle vs_shell_handles[VS_SHELL_COUNT];
+vs_handle vs_handles[VS_SHELL_COUNT];
 
 /** 
  * @brief Invalidate any command completion strings that we've overrun after wrapping 
@@ -280,8 +280,8 @@ void vs_init()
 {
 	for ( unsigned shell_index = 0; shell_index < VS_SHELL_COUNT; ++shell_index )
 	{
-		vs_handle shell               = &void_shell_data[shell_index];
-		vs_shell_handles[shell_index] = shell;
+		vs_handle shell         = &vs_data[shell_index];
+		vs_handles[shell_index] = shell;
 		memset( shell, 0, sizeof( struct vs_data ) );
 		vs_clear_console( shell );
 	}

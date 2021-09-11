@@ -21,10 +21,10 @@ void shell_output( const char *data, size_t length )
 int main()
 {
 	vs_init();
-	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
-	vc_init( vs_shell_handles[0] );
+	vs_configure( vs_handles[0], &shell_get_char, &shell_output, true );
+	vc_init( vs_handles[0] );
 	while ( true )
 	{
-		vs_run( vs_shell_handles[0] );
+		vs_run( vs_handles[0] );
 	}
 }

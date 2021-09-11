@@ -77,7 +77,7 @@ static const struct vc_description help_command_description = {
     .help_string    = "The following are the currently registered commands:",
 };
 
-static void clear_command( void ) { vs_clear_console( vs_shell_handles[0] ); }
+static void clear_command( void ) { vs_clear_console( vs_handles[0] ); }
 
 static const struct vc_description clear_command_description = {
     .command_string = "clear",

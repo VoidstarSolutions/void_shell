@@ -32,13 +32,17 @@
 
 #include "void_shell.h"
 
-#include <unity.h>
-
-#include "void_command.h"
-#include "void_shell_utilities.h"
 #include <printf.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <unity.h>
+
+#include "mock_void_command.h"
+#include "mock_void_shell_utilities.h"
+
+// Extern the shell data
+extern struct vs_data vs_data[];
 
 int8_t shell_get_char( void ) { return getchar(); }
 
@@ -65,55 +69,62 @@ void shell_output( const char *data, size_t length )
 	}
 }
 
-void vs_invalidate_history( struct vs_shell_data *shell );
+void vs_invalidate_history( struct vs_data *shell );
 
-void vs_buffer_wrapped( struct vs_shell_data *shell );
+void vs_buffer_wrapped( struct vs_data *shell );
 
-void vs_display_history_command( struct vs_shell_data *shell );
+void vs_display_history_command( struct vs_data *shell );
 
-void vs_attempt_autocomplete( struct vs_shell_data *shell );
+void vs_attempt_autocomplete( struct vs_data *shell );
 
-void vs_process_command( struct vs_shell_data *shell );
+void vs_process_command( struct vs_data *shell );
 
-bool process_escape_sequence( struct vs_shell_data *shell, char input_char );
+bool process_escape_sequence( struct vs_data *shell, char input_char );
 
-void process_received_char( struct vs_shell_data *shell, char input_char );
+void process_received_char( struct vs_data *shell, char input_char );
 
-void setUp( void )
+static void configure_shell( bool with_echo )
 {
+	vs_clear_text_Expect( &vs_data[0] );
+	vs_home_Expect( &vs_data[0] );
 	vs_init();
-	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
-	vc_init( vs_shell_handles[0] );
+	vs_configure( vs_handles[0], &shell_get_char, &shell_output, with_echo );
 }
+
+void setUp( void ) { configure_shell( true ); }
 
 void tearDown( void ) { system( "/bin/stty cooked" ); }
 
-void test_vs_init( void )
+void test_vs_invalidate_history( void )
 {
-	vs_init();
+	vs_invalidate_history( vs_handles[0] );
 	TEST_ASSERT( true );
 }
 
-void test_vs_invalidate_history( void )
+void test_vs_init( void )
 {
-	vs_invalidate_history( vs_shell_handles[0] );
-	TEST_ASSERT( true );
+	vs_clear_text_Expect( vs_handles[0] );
+	vs_home_Expect( &vs_data[0] );
+	vs_init();
+	TEST_ASSERT_EQUAL_PTR( &vs_data[0], vs_handles[0] );
+	const uint8_t *shell_data = (uint8_t *) &vs_data[0];
+	TEST_ASSERT_EQUAL_UINT8_ARRAY( 0, *shell_data, sizeof( struct vs_data ) );
 }
 
 void test_vs_output_internal( void )
 {
-	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
+	vs_configure( vs_handles[0], &shell_get_char, &shell_output, true );
 	reset_buffer();
 	const char *test_out = "A,B,C,D";
 	// Test with echo enabled
-	vs_output_internal( vs_shell_handles[0], test_out, strlen( test_out ) );
+	vs_output_internal( vs_handles[0], test_out, strlen( test_out ) );
 	TEST_ASSERT_EQUAL_CHAR( 'A', output_buffer[0] );
 	TEST_ASSERT_EQUAL_CHAR( 'D', output_buffer[6] );
 	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[7] );
-	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, false );
+	vs_configure( vs_handles[0], &shell_get_char, &shell_output, false );
 	reset_buffer();
 	// Test with echo disabled
-	vs_output_internal( vs_shell_handles[0], test_out, strlen( test_out ) );
+	vs_output_internal( vs_handles[0], test_out, strlen( test_out ) );
 	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[0] );
 	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[6] );
 }

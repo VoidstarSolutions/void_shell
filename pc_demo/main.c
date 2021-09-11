@@ -31,12 +31,12 @@ int main()
 {
 	system( "/bin/stty raw" );
 	vs_init();
-	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
-	vc_init( vs_shell_handles[0] );
+	vs_configure( vs_handles[0], &shell_get_char, &shell_output, true );
+	vc_init( vs_handles[0] );
 	vc_register( &exit_command_description );
 	while ( run_shell )
 	{
-		vs_run( vs_shell_handles[0] );
+		vs_run( vs_handles[0] );
 	}
 	system( "/bin/stty cooked" );
 	return 0;

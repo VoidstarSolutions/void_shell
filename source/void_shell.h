@@ -45,7 +45,7 @@ typedef const struct vs_data *const_vs_handle;
  * @brief vs_shell_data will be an array of pointers to shell
  * data of size VS_SHELL_COUNT
  **/
-extern vs_handle vs_shell_handles[];
+extern vs_handle vs_handles[];
 
 /**
  * @brief Initialize the memories for shell
