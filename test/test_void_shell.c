@@ -86,3 +86,10 @@ void test_vs_invalidate_history( void )
 	vs_invalidate_history( vs_shell_handles[0] );
 	TEST_ASSERT( true );
 }
+
+void test_vs_output_internal( void )
+{
+	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, true );
+	const char *test_out = "A,B,C,D";
+	vs_output_internal( vs_shell_handles[0], test_out, 7 );
+}
