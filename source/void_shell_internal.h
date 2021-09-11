@@ -78,7 +78,7 @@ typedef void ( *vs_output )( const char *data, size_t length );
 /** 
  * @brief Struct to hold start and length of previous commands 
  * **/
-struct vs_command_history_entry
+struct vs_history_entry
 {
 	size_t start_index;
 	size_t length;
@@ -114,7 +114,7 @@ struct vs_data
 	/** Index of requested command for accessing historical commands */
 	size_t requested_command_index;
 	/** Buffer to store information about past commands */
-	struct vs_command_history_entry previous_commands[VS_COMMAND_HISTORY_COUNT];
+	struct vs_history_entry previous_commands[VS_COMMAND_HISTORY_COUNT];
 	/** Whether this shell will echo typed characters */
 	bool echo_enabled;
 	/** Shell is dirty if user has entered characters other than control characters */

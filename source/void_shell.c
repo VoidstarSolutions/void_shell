@@ -32,6 +32,7 @@
 
 #include "void_shell.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -44,6 +45,12 @@ VS_STATIC struct vs_data vs_data[VS_SHELL_COUNT];
 
 vs_handle vs_handles[VS_SHELL_COUNT];
 
+VS_STATIC bool vs_history_entry_active( const struct vs_history_entry *entry )
+{
+	assert( entry->length > 0 || entry->start_index == 0 );
+	return entry->length > 0;
+}
+
 /** 
  * @brief Invalidate any command completion strings that we've overrun after wrapping 
  * 
@@ -53,11 +60,11 @@ VS_STATIC void vs_invalidate_history( struct vs_data *shell )
 {
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; ++cmd_idx )
 	{
-		const struct vs_command_history_entry *command = &shell->previous_commands[cmd_idx];
-		if ( command->length && command->start_index >= shell->start_index &&
-		     command->start_index <= ( shell->start_index + shell->line_length ) )
+		const struct vs_history_entry *entry = &shell->previous_commands[cmd_idx];
+		if ( vs_history_entry_active( entry )              // entry is active
+		     && entry->start_index <= shell->start_index ) // start of entry has been overrun
 		{
-			memset( &shell->input_buffer[command->start_index], '\0', command->length );
+			memset( &shell->input_buffer[entry->start_index], '\0', entry->length );
 			shell->previous_commands[cmd_idx].start_index = 0;
 			shell->previous_commands[cmd_idx].length      = 0;
 		}
@@ -96,7 +103,7 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
 		shell->start_index += shell->line_length;
 	}
 
-	const struct vs_command_history_entry *command =
+	const struct vs_history_entry *command =
 	    &shell->previous_commands[shell->requested_command_index];
 	const char *history_command_start = &shell->input_buffer[command->start_index];
 	char *      current_command_start = &shell->input_buffer[shell->start_index];
