@@ -34,13 +34,46 @@
 
 #include <stdint.h>
 
-#include "void_shell.h"
+#ifndef VS_SHELL_COUNT
+/** Default is a single shell */
+#define VS_SHELL_COUNT ( (size_t) 1 )
+#endif // VS_SHELL_COUNT
+
+#ifndef VS_BUFFER_SIZE_POW_TWO
+/** Default buffer size of 2^8, or 256 characters */
+#define VS_BUFFER_SIZE_POW_TWO ( (size_t) 8 )
+#endif // VS_BUFFER_SIZE_POW_TWO
+
+#ifndef VS_COMMAND_HISTORY_COUNT_POW_TWO
+/** Default history length of 2^2, or 4 commands */
+#define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (size_t) 2 )
+#endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
 
 #define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 4 )
 #define VS_BUFFER_SIZE ( (unsigned) 1 << VS_BUFFER_SIZE_POW_TWO )
 #define VS_BUFFER_INDEX_MASK ( (unsigned) VS_BUFFER_SIZE - 1 )
 #define VS_COMMAND_HISTORY_COUNT ( (unsigned) 1 << VS_COMMAND_HISTORY_COUNT_POW_TWO )
 #define VS_COMMAND_HISTORY_INDEX_MASK ( (unsigned) VS_COMMAND_HISTORY_COUNT - 1 )
+
+// Allow unit tests to call static functions
+#ifndef __TEST__
+#define VS_STATIC static
+#else
+#define VS_STATIC
+#endif
+
+/**
+ * @brief Function to get next input character for shell
+ * Must be provided by console application
+ * @return Negative if not available, or ASCII value from 0-127
+ **/
+typedef int8_t ( *vs_get_char )();
+
+/**
+ * @brief Ouput function to be used by shell
+ * Must be provided by console application
+ **/
+typedef void ( *vs_output )( const char *data, size_t length );
 
 /** 
  * @brief Struct to hold start and length of previous commands 

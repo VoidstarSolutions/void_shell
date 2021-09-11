@@ -38,7 +38,6 @@
 #include <printf.h>
 
 #include "void_command.h"
-#include "void_shell_internal.h"
 #include "void_shell_utilities.h"
 
 static struct vs_data void_shell_data[VS_SHELL_COUNT];
