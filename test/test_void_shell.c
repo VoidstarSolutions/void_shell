@@ -97,8 +97,18 @@ void tearDown( void ) { system( "/bin/stty cooked" ); }
 
 void test_vs_invalidate_history( void )
 {
+
+	vs_data[0].previous_commands[0] = ( struct vs_history_entry ){ 0, 10 };
+	vs_data[0].previous_commands[1] = ( struct vs_history_entry ){ 10, 10 };
+	vs_data[0].previous_commands[2] = ( struct vs_history_entry ){ 20, 10 };
+	vs_data[0].previous_commands[3] = ( struct vs_history_entry ){ 30, 10 };
+	// should invalidate first command, but not second
+	vs_data[0].start_index = 1;
 	vs_invalidate_history( vs_handles[0] );
-	TEST_ASSERT( true );
+	TEST_ASSERT_EQUAL( 0, vs_data[0].previous_commands[0].length );
+	TEST_ASSERT_EQUAL( 0, vs_data[0].previous_commands[0].start_index );
+	TEST_ASSERT_EQUAL( 10, vs_data[0].previous_commands[1].length );
+	TEST_ASSERT_EQUAL( 10, vs_data[0].previous_commands[1].start_index );
 }
 
 void test_vs_init( void )
