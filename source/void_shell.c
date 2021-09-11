@@ -35,7 +35,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <printf.h>
+#include "../third_party/printf/printf.h"
 
 #include "void_command.h"
 #include "void_shell_utilities.h"
