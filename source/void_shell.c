@@ -51,7 +51,7 @@ vs_handle vs_handles[VS_SHELL_COUNT];
  * */
 VS_STATIC void vs_invalidate_history( struct vs_data *shell )
 {
-	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; cmd_idx++ )
+	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; ++cmd_idx )
 	{
 		const struct vs_command_history_entry *command = &shell->previous_commands[cmd_idx];
 		if ( command->length && command->start_index >= shell->start_index &&
@@ -159,7 +159,7 @@ VS_STATIC void vs_process_command( struct vs_data *shell )
 	vc_print_context();
 	printf( command_start );
 
-	// new line recieved echo a line separator
+	// new line received echo a line separator
 	vs_output_internal( shell, "\n", 1 );
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
@@ -233,12 +233,12 @@ VS_STATIC bool process_escape_sequence( struct vs_data *shell, char input_char )
 }
 
 /**
- * @brief Handle a recieved character
+ * @brief Handle a received character
  * 
- * @param [in,out] shell Shell data to add recieved character to
- * @param [in] input_char recieved character to process
+ * @param [in,out] shell Shell data to add received character to
+ * @param [in] input_char received character to process
  */
-VS_STATIC void process_recieved_char( struct vs_data *shell, char input_char )
+VS_STATIC void process_received_char( struct vs_data *shell, char input_char )
 {
 	size_t character_index = ( shell->start_index + shell->cursor_column ) & VS_BUFFER_INDEX_MASK;
 
@@ -328,7 +328,7 @@ void vs_run( vs_handle shell )
 			break;
 		default:
 			/* Handle non-command characters */
-			process_recieved_char( shell, input_char );
+			process_received_char( shell, input_char );
 			break;
 	}
 }
