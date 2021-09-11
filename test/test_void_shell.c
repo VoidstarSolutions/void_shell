@@ -109,6 +109,7 @@ void test_vs_output_internal( void )
 	vs_output_internal( vs_shell_handles[0], test_out, strlen( test_out ) );
 	TEST_ASSERT_EQUAL_CHAR( 'A', output_buffer[0] );
 	TEST_ASSERT_EQUAL_CHAR( 'D', output_buffer[6] );
+	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[7] );
 	vs_configure( vs_shell_handles[0], &shell_get_char, &shell_output, false );
 	reset_buffer();
 	// Test with echo disabled
