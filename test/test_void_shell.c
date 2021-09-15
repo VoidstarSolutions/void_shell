@@ -32,11 +32,11 @@
 
 #include "void_shell.h"
 
-#include <printf.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <unity.h>
+#include "../third_party/printf/printf.h"
+#include "../third_party/unity/src/unity.h"
 
 #include "mock_void_command.h"
 #include "mock_void_shell_utilities.h"
@@ -97,18 +97,62 @@ void tearDown( void ) { system( "/bin/stty cooked" ); }
 
 void test_vs_invalidate_history( void )
 {
+	struct vs_data *shell = &vs_data[0];
 
-	vs_data[0].previous_commands[0] = ( struct vs_history_entry ){ 0, 10 };
-	vs_data[0].previous_commands[1] = ( struct vs_history_entry ){ 10, 10 };
-	vs_data[0].previous_commands[2] = ( struct vs_history_entry ){ 20, 10 };
-	vs_data[0].previous_commands[3] = ( struct vs_history_entry ){ 30, 10 };
-	// should invalidate first command, but not second
-	vs_data[0].start_index = 1;
+	shell->previous_commands[0] = ( struct vs_history_entry ){ 0, 10 };
+	shell->previous_commands[1] = ( struct vs_history_entry ){ 10, 10 };
+	shell->previous_commands[2] = ( struct vs_history_entry ){ 20, 10 };
+	shell->previous_commands[3] = ( struct vs_history_entry ){ 30, 10 };
+	// should invalidate first command, but not others
+	shell->start_index = 1;
 	vs_invalidate_history( vs_handles[0] );
-	TEST_ASSERT_EQUAL( 0, vs_data[0].previous_commands[0].length );
-	TEST_ASSERT_EQUAL( 0, vs_data[0].previous_commands[0].start_index );
-	TEST_ASSERT_EQUAL( 10, vs_data[0].previous_commands[1].length );
-	TEST_ASSERT_EQUAL( 10, vs_data[0].previous_commands[1].start_index );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[0].length );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[0].start_index );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[1].length );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[1].start_index );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[2].length );
+	TEST_ASSERT_EQUAL( 20, shell->previous_commands[2].start_index );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[3].length );
+	TEST_ASSERT_EQUAL( 30, shell->previous_commands[3].start_index );
+
+	// invalidate all but last
+	shell->start_index = 21;
+	vs_invalidate_history( vs_handles[0] );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[1].length );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[1].start_index );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[2].length );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[2].start_index );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[3].length );
+	TEST_ASSERT_EQUAL( 30, shell->previous_commands[3].start_index );
+
+	//invalidate last
+	shell->start_index = 41;
+	vs_invalidate_history( vs_handles[0] );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[3].length );
+	TEST_ASSERT_EQUAL( 0, shell->previous_commands[3].start_index );
+}
+
+void test_vs_buffer_wrapped()
+{
+	struct vs_data *shell = &vs_data[0];
+	// write some data into the end of the buffer
+	size_t start_index = VS_BUFFER_SIZE - 10;
+	shell->start_index = start_index;
+	char  compare_array[10];
+	char *comparison = &compare_array;
+	char  counter    = 0;
+	for ( size_t buffer_index = start_index; buffer_index < VS_BUFFER_SIZE; ++buffer_index )
+	{
+		shell->input_buffer[buffer_index] = counter;
+		comparison[counter]               = counter;
+		counter++;
+	}
+	shell->line_length = counter;
+	vs_buffer_wrapped( shell );
+
+	TEST_ASSERT_EACH_EQUAL_CHAR( 0, &shell->input_buffer[start_index], 9 );
+	TEST_ASSERT_EQUAL( 0, shell->input_buffer[0] );
+	TEST_ASSERT_EQUAL_CHAR_ARRAY( comparison, &shell->input_buffer[0], 10 );
 }
 
 void test_vs_init( void )

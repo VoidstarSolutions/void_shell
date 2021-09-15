@@ -58,8 +58,10 @@
 // Allow unit tests to call static functions
 #ifndef __TEST__
 #define VS_STATIC static
+#define VS_STATIC_INLINE static inline
 #else
 #define VS_STATIC
+#define VS_STATIC_INLINE
 #endif
 
 /**

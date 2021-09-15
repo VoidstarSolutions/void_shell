@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <string.h>
 
+// Force intellisense to get the right printf header
 #include "../third_party/printf/printf.h"
 
 #include "void_command.h"
@@ -45,7 +46,7 @@ VS_STATIC struct vs_data vs_data[VS_SHELL_COUNT];
 
 vs_handle vs_handles[VS_SHELL_COUNT];
 
-VS_STATIC bool vs_history_entry_active( const struct vs_history_entry *entry )
+VS_STATIC_INLINE bool vs_history_entry_active( const struct vs_history_entry *entry )
 {
 	assert( entry->length > 0 || entry->start_index == 0 );
 	return entry->length > 0;
@@ -127,7 +128,7 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
  * @brief Request command completion from command processor for current command
  * @param[in,out] shell Shell Data for current command
  */
-VS_STATIC void vs_attempt_autocomplete( struct vs_data *shell )
+VS_STATIC_INLINE void vs_attempt_autocomplete( struct vs_data *shell )
 {
 	(void) ( shell );
 	char *command_string = &shell->input_buffer[shell->start_index];
@@ -245,7 +246,7 @@ VS_STATIC bool process_escape_sequence( struct vs_data *shell, char input_char )
  * @param [in,out] shell Shell data to add received character to
  * @param [in] input_char received character to process
  */
-VS_STATIC void process_received_char( struct vs_data *shell, char input_char )
+VS_STATIC_INLINE void process_received_char( struct vs_data *shell, char input_char )
 {
 	size_t character_index = ( shell->start_index + shell->cursor_column ) & VS_BUFFER_INDEX_MASK;
 
