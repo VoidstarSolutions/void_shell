@@ -53,7 +53,7 @@ VS_STATIC_INLINE bool vs_history_entry_active( const struct vs_history_entry *en
 }
 
 /** 
- * @brief Invalidate any command completion strings that we've overrun after wrapping 
+ * @brief Invalidate any command completion strings that we've overrun
  * 
  * @param [in,out] shell shell data for which overrun history should be invalidated
  * */
@@ -62,8 +62,11 @@ VS_STATIC void vs_invalidate_history( struct vs_data *shell )
 	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; ++cmd_idx )
 	{
 		const struct vs_history_entry *entry = &shell->previous_commands[cmd_idx];
-		if ( vs_history_entry_active( entry )              // entry is active
-		     && entry->start_index <= shell->start_index ) // start of entry has been overrun
+		if ( vs_history_entry_active( entry )            // entry is active
+		     && shell->line_length > 0                   // the line has overwritten anything
+		     && entry->start_index <= shell->start_index // entry starts before current command
+		     && entry->start_index + entry->length > shell->start_index // and ends after it starts
+		)
 		{
 			memset( &shell->input_buffer[entry->start_index], '\0', entry->length );
 			shell->previous_commands[cmd_idx].start_index = 0;
@@ -95,6 +98,7 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
 {
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
+
 	vc_print_context();
 	if ( shell->dirty )
 	{
@@ -102,26 +106,29 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
 		shell->previous_commands[shell->command_index].length      = shell->line_length;
 		// Jump ahead in the buffer to preserve what we've typed
 		shell->start_index += shell->line_length;
+		// This can't wrap, or we would have already handled it, but just in case
+		assert( shell->start_index < VS_BUFFER_SIZE );
 	}
 
-	const struct vs_history_entry *command =
+	const struct vs_history_entry *requested_command =
 	    &shell->previous_commands[shell->requested_command_index];
-	const char *history_command_start = &shell->input_buffer[command->start_index];
-	char *      current_command_start = &shell->input_buffer[shell->start_index];
 	// check if the history command wraps the input buffer
-	if ( ( current_command_start - shell->input_buffer ) + command->length >= VS_BUFFER_SIZE )
+	if ( shell->start_index + requested_command->length >= VS_BUFFER_SIZE )
 	{
-		// We wrapped the input buffer, resetting to index 0
+		// We wrapped the input buffer, res=etting to index 0
 		vs_buffer_wrapped( shell );
-		current_command_start = shell->input_buffer;
 	}
-	memset( current_command_start + command->length, '\0', shell->line_length );
-	vs_output_internal( shell, history_command_start, command->length );
-	memcpy( current_command_start, history_command_start, command->length );
-	shell->cursor_column = command->length;
-	shell->line_length   = command->length;
+	memset( &shell->input_buffer[shell->start_index], '\0', shell->line_length );
+	vs_output_internal(
+	    shell, &shell->input_buffer[requested_command->start_index], requested_command->length );
+
+	memcpy( &shell->input_buffer[shell->start_index],
+	        &shell->input_buffer[requested_command->start_index],
+	        requested_command->length );
+	shell->command_index = shell->requested_command_index;
+	shell->cursor_column = requested_command->length;
+	shell->line_length   = requested_command->length;
 	shell->dirty         = false;
-	vs_invalidate_history( shell );
 }
 
 /** 
@@ -155,9 +162,12 @@ VS_STATIC_INLINE void vs_attempt_autocomplete( struct vs_data *shell )
  */
 VS_STATIC void vs_process_command( struct vs_data *shell )
 {
+
 	size_t terminator_index = shell->start_index + shell->line_length;
+
 	// null terminate the command
 	shell->input_buffer[terminator_index] = '\0';
+	++shell->line_length;
 	// If the null terminator stomped on a history command invalidate it
 	vs_invalidate_history( shell );
 
