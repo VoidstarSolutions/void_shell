@@ -44,17 +44,17 @@
 // Extern the shell data
 extern struct vs_data vs_data[];
 
-int8_t shell_get_char( void ) { return getchar(); }
+static uint8_t     input_index  = 0;
+static uint8_t     output_index = 0;
+static char        output_buffer[256];
+static const char  sequential_comparison_array[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+static const char *comparison_ptr;
 
-static uint8_t output_index = 0;
-static char    output_buffer[256];
+int8_t shell_get_char( void ) { return comparison_ptr[input_index++]; }
 
-static void reset_buffer()
+static void reset_output_buffer()
 {
-	for ( uint8_t index = 0; index < output_index; ++index )
-	{
-		output_buffer[index] = '\0';
-	}
+	memset( &output_buffer[0], 0, 256 );
 	output_index = 0;
 }
 
@@ -103,11 +103,16 @@ void test_vs_invalidate_history( void )
 	shell->previous_commands[1] = ( struct vs_history_entry ){ 10, 10 };
 	shell->previous_commands[2] = ( struct vs_history_entry ){ 20, 10 };
 	shell->previous_commands[3] = ( struct vs_history_entry ){ 30, 10 };
-	// should invalidate first command, but not others
+	
+	shell->line_length = 0;
 	shell->start_index = 1;
+	// If line has no characters, don't invalidate anything
 	vs_invalidate_history( vs_handles[0] );
-	TEST_ASSERT_EQUAL( 0, shell->previous_commands[0].length );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[0].length );
 	TEST_ASSERT_EQUAL( 0, shell->previous_commands[0].start_index );
+	shell->line_length = 1;
+	// should invalidate first command, but not others
+	vs_invalidate_history( vs_handles[0] );
 	TEST_ASSERT_EQUAL( 10, shell->previous_commands[1].length );
 	TEST_ASSERT_EQUAL( 10, shell->previous_commands[1].start_index );
 	TEST_ASSERT_EQUAL( 10, shell->previous_commands[2].length );
@@ -115,44 +120,76 @@ void test_vs_invalidate_history( void )
 	TEST_ASSERT_EQUAL( 10, shell->previous_commands[3].length );
 	TEST_ASSERT_EQUAL( 30, shell->previous_commands[3].start_index );
 
-	// invalidate all but last
+	// invalidate third but not second or last
 	shell->start_index = 21;
 	vs_invalidate_history( vs_handles[0] );
-	TEST_ASSERT_EQUAL( 0, shell->previous_commands[1].length );
-	TEST_ASSERT_EQUAL( 0, shell->previous_commands[1].start_index );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[1].length );
+	TEST_ASSERT_EQUAL( 10, shell->previous_commands[1].start_index );
 	TEST_ASSERT_EQUAL( 0, shell->previous_commands[2].length );
 	TEST_ASSERT_EQUAL( 0, shell->previous_commands[2].start_index );
 	TEST_ASSERT_EQUAL( 10, shell->previous_commands[3].length );
 	TEST_ASSERT_EQUAL( 30, shell->previous_commands[3].start_index );
 
-	//invalidate last
-	shell->start_index = 41;
-	vs_invalidate_history( vs_handles[0] );
-	TEST_ASSERT_EQUAL( 0, shell->previous_commands[3].length );
-	TEST_ASSERT_EQUAL( 0, shell->previous_commands[3].start_index );
 }
 
 void test_vs_buffer_wrapped()
 {
+	comparison_ptr        = &sequential_comparison_array[0];
+	input_index           = 0;
 	struct vs_data *shell = &vs_data[0];
+
 	// write some data into the end of the buffer
 	size_t start_index = VS_BUFFER_SIZE - 10;
 	shell->start_index = start_index;
-	char  compare_array[10];
-	char *comparison = &compare_array;
-	char  counter    = 0;
+	char counter       = 0;
 	for ( size_t buffer_index = start_index; buffer_index < VS_BUFFER_SIZE; ++buffer_index )
 	{
-		shell->input_buffer[buffer_index] = counter;
-		comparison[counter]               = counter;
-		counter++;
+		shell->input_buffer[buffer_index] = counter++;
 	}
+
 	shell->line_length = counter;
 	vs_buffer_wrapped( shell );
 
 	TEST_ASSERT_EACH_EQUAL_CHAR( 0, &shell->input_buffer[start_index], 9 );
 	TEST_ASSERT_EQUAL( 0, shell->input_buffer[0] );
-	TEST_ASSERT_EQUAL_CHAR_ARRAY( comparison, &shell->input_buffer[0], 10 );
+	TEST_ASSERT_EQUAL_CHAR_ARRAY( comparison_ptr, &shell->input_buffer[0], 10 );
+}
+
+void test_vs_display_history_command()
+{
+	comparison_ptr = &sequential_comparison_array[0];
+	input_index    = 0;
+	reset_output_buffer();
+
+	struct vs_data *shell = &vs_data[0];
+
+	shell->previous_commands[0] = ( struct vs_history_entry ){ 0, 3 };
+	shell->previous_commands[1] = ( struct vs_history_entry ){ 3, 3 };
+	shell->previous_commands[2] = ( struct vs_history_entry ){ 6, 3 };
+	shell->previous_commands[3] = ( struct vs_history_entry ){ 9, 1 };
+
+	memcpy( &shell->input_buffer, comparison_ptr, 10 );
+
+	vs_start_of_line_Expect( shell );
+	vs_erase_after_cursor_Expect( shell );
+	vc_print_context_Expect();
+	vs_display_history_command( shell );
+	TEST_ASSERT_EQUAL_CHAR_ARRAY( comparison_ptr, &output_buffer[0], 3 );
+	shell->dirty                   = true;
+	shell->command_index           = 3;
+	shell->requested_command_index = 2;
+	shell->line_length             = 3;
+	shell->start_index             = 6;
+	memcpy( &shell->input_buffer[0], comparison_ptr, 3 );
+	vs_start_of_line_Expect( shell );
+	vs_erase_after_cursor_Expect( shell );
+	vc_print_context_Expect();
+	vs_display_history_command( shell );
+	// Should have printed 6-8
+	TEST_ASSERT_EQUAL_CHAR_ARRAY( &comparison_ptr[6], &output_buffer[3], 3 );
+	// Shell was dirty, so should have overwritten command 3(current) history
+	TEST_ASSERT_EQUAL( 6, shell->previous_commands[3].start_index );
+	TEST_ASSERT_EQUAL( 3, shell->previous_commands[3].length );
 }
 
 void test_vs_init( void )
@@ -168,7 +205,7 @@ void test_vs_init( void )
 void test_vs_output_internal( void )
 {
 	vs_configure( vs_handles[0], &shell_get_char, &shell_output, true );
-	reset_buffer();
+	reset_output_buffer();
 	const char *test_out = "A,B,C,D";
 	// Test with echo enabled
 	vs_output_internal( vs_handles[0], test_out, strlen( test_out ) );
@@ -176,7 +213,7 @@ void test_vs_output_internal( void )
 	TEST_ASSERT_EQUAL_CHAR( 'D', output_buffer[6] );
 	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[7] );
 	vs_configure( vs_handles[0], &shell_get_char, &shell_output, false );
-	reset_buffer();
+	reset_output_buffer();
 	// Test with echo disabled
 	vs_output_internal( vs_handles[0], test_out, strlen( test_out ) );
 	TEST_ASSERT_EQUAL_CHAR( '\0', output_buffer[0] );
