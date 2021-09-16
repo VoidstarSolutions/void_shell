@@ -14,6 +14,7 @@ AllowShortLoopsOnASingleLine: 'false'
 BinPackArguments: false
 BinPackParameters: false
 ColumnLimit: '100'
+ExperimentalAutoDetectBinPacking: false
 IndentWidth: '4'
 IndentCaseLabels: 'true'
 SortIncludes: 'true'

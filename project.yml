@@ -29,6 +29,7 @@
   :test:
     - *common_defines
     - __TEST__
+    - NDEBUG
   :test_preprocess:
     - *common_defines
     - __TEST__
