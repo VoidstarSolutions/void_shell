@@ -32,6 +32,8 @@
 #ifndef VOID_SHELL_INTERNAL_H
 #define VOID_SHELL_INTERNAL_H
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifndef VS_SHELL_COUNT

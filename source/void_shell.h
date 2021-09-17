@@ -32,10 +32,6 @@
 #ifndef VOID_SHELL_H
 #define VOID_SHELL_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
 #include "void_shell_internal.h"
 
 typedef struct vs_data *      vs_handle;

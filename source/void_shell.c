@@ -33,7 +33,6 @@
 #include "void_shell.h"
 
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
 // Force intellisense to get the right printf header

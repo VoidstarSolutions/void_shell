@@ -38,8 +38,8 @@
 #include "../third_party/printf/printf.h"
 #include "../third_party/unity/src/unity.h"
 
-#include "mock_void_command.h"
-#include "mock_void_shell_utilities.h"
+#include "../build/test/mocks/mock_void_command.h"
+#include "../build/test/mocks/mock_void_shell_utilities.h"
 
 // Extern the shell data
 extern struct vs_data vs_data[];
@@ -93,8 +93,6 @@ static void configure_shell( bool with_echo )
 
 void setUp( void ) { configure_shell( true ); }
 
-void tearDown( void ) { system( "/bin/stty cooked" ); }
-
 void test_vs_invalidate_history( void )
 {
 	struct vs_data *shell = &vs_data[0];
@@ -141,7 +139,7 @@ void test_vs_buffer_wrapped()
 	// write some data into the end of the buffer
 	size_t start_index = VS_BUFFER_SIZE - 10;
 	shell->start_index = start_index;
-	char counter       = 0;
+	size_t counter       = 0;
 	for ( size_t buffer_index = start_index; buffer_index < VS_BUFFER_SIZE; ++buffer_index )
 	{
 		shell->input_buffer[buffer_index] = counter++;
