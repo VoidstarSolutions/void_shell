@@ -36,10 +36,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifndef VS_SHELL_COUNT
-/** Default is a single shell */
-#define VS_SHELL_COUNT ( (size_t) 1 )
-#endif // VS_SHELL_COUNT
+#ifndef VS_DEFAULT_SHELL
+/** Default is single shell */
+#define VS_DEFAULT_SHELL true
+#endif // VS_DEFAULT_SHELL
 
 #ifndef VS_BUFFER_SIZE_POW_TWO
 /** Default buffer size of 2^8, or 256 characters */
@@ -51,7 +51,7 @@
 #define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (size_t) 2 )
 #endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
 
-#define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (uint8_t) 4 )
+#define VS_ESCAPE_SEQUENCE_BUFFER_SIZE ( (size_t) 4 )
 #define VS_BUFFER_SIZE ( (unsigned) 1 << VS_BUFFER_SIZE_POW_TWO )
 #define VS_BUFFER_INDEX_MASK ( (unsigned) VS_BUFFER_SIZE - 1 )
 #define VS_COMMAND_HISTORY_COUNT ( (unsigned) 1 << VS_COMMAND_HISTORY_COUNT_POW_TWO )
@@ -84,7 +84,9 @@ typedef void ( *vs_output )( const char *data, size_t length );
  * **/
 struct vs_history_entry
 {
+	/** buffer index of first character */
 	size_t start_index;
+	/** Length of command */
 	size_t length;
 };
 
@@ -124,5 +126,13 @@ struct vs_data
 	/** Shell is dirty if user has entered characters other than control characters */
 	bool dirty;
 };
+
+typedef struct vs_data *vs_handle;
+
+typedef const struct vs_data *const_vs_handle;
+
+#if ( VS_DEFAULT_SHELL == true )
+extern vs_handle vs_default_shell;
+#endif
 
 #endif // VOID_SHELL_INTERNAL_H

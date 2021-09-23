@@ -32,21 +32,12 @@
 #ifndef VOID_SHELL_H
 #define VOID_SHELL_H
 
-#include "void_shell_internal.h"
-
-typedef struct vs_data *      vs_handle;
-typedef const struct vs_data *const_vs_handle;
-
-/** 
- * @brief vs_shell_data will be an array of pointers to shell
- * data of size VS_SHELL_COUNT
- **/
-extern vs_handle vs_handles[];
+#include "void_shell_types.h"
 
 /**
  * @brief Initialize the memories for shell
  **/
-void vs_init();
+void vs_init(vs_handle shell);
 
 /**
  * @brief Configure a shell with the provided input function
@@ -90,4 +81,4 @@ void vs_clear_console( vs_handle shell );
  **/
 void vs_output_internal( const_vs_handle shell, const char *data, size_t length );
 
-#endif // vs_H
+#endif // VOID_SHELL_H

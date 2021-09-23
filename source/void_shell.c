@@ -41,9 +41,10 @@
 #include "void_command.h"
 #include "void_shell_utilities.h"
 
-VS_STATIC struct vs_data vs_data[VS_SHELL_COUNT];
-
-vs_handle vs_handles[VS_SHELL_COUNT];
+#if ( VS_DEFAULT_SHELL == true )
+static struct vs_data vs_default_shell_data;
+vs_handle vs_default_shell = &vs_default_shell_data;
+#endif
 
 VS_STATIC_INLINE bool vs_history_entry_active( const struct vs_history_entry *entry )
 {
@@ -98,7 +99,7 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
 
-	vc_print_context();
+	vc_print_context( shell );
 	if ( shell->dirty )
 	{
 		shell->previous_commands[shell->command_index].start_index = shell->start_index;
@@ -136,14 +137,14 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
  */
 VS_STATIC_INLINE void vs_attempt_autocomplete( struct vs_data *shell )
 {
-	(void) ( shell );
 	char *command_string = &shell->input_buffer[shell->start_index];
 
-	size_t updated_len = vc_complete_command( command_string, 255 );
+	size_t updated_len = vc_complete_command(
+	    command_string, shell->line_length, ( VS_BUFFER_SIZE - shell->start_index ) );
 	if ( updated_len != 0 )
 	{
 		vs_start_of_line( shell );
-		vc_print_context();
+		vc_print_context( shell );
 		shell->cursor_column = updated_len;
 		shell->line_length   = updated_len;
 		vs_output_internal( shell, &shell->input_buffer[shell->start_index], updated_len );
@@ -173,7 +174,7 @@ VS_STATIC void vs_process_command( struct vs_data *shell )
 	const char *command_start = &shell->input_buffer[shell->start_index];
 	vs_start_of_line( shell );
 	vs_erase_after_cursor( shell );
-	vc_print_context();
+	vc_print_context( shell );
 	printf( command_start );
 
 	// new line received echo a line separator
@@ -182,11 +183,11 @@ VS_STATIC void vs_process_command( struct vs_data *shell )
 	vs_erase_after_cursor( shell );
 	if ( shell->line_length == 0 )
 	{
-		vc_print_context();
+		vc_print_context( shell );
 		return;
 	}
 
-	vc_handle_command( command_start );
+	vc_handle_command( shell, command_start );
 	shell->previous_commands[shell->command_index].start_index = shell->start_index;
 	shell->previous_commands[shell->command_index].length      = shell->line_length;
 	shell->command_index           = ( shell->command_index + 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
@@ -293,15 +294,10 @@ VS_STATIC_INLINE void process_received_char( struct vs_data *shell, char input_c
 	}
 }
 
-void vs_init()
+void vs_init( vs_handle shell )
 {
-	for ( unsigned shell_index = 0; shell_index < VS_SHELL_COUNT; ++shell_index )
-	{
-		vs_handle shell         = &vs_data[shell_index];
-		vs_handles[shell_index] = shell;
-		memset( shell, 0, sizeof( struct vs_data ) );
-		vs_clear_console( shell );
-	}
+	memset( shell, 0, sizeof( struct vs_data ) );
+	vs_clear_console( shell );
 }
 
 void vs_configure( vs_handle   shell,

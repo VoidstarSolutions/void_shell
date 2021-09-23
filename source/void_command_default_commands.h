@@ -23,37 +23,21 @@
 ==============================================================================*/
 
 /**
- * \file void_command.h
+ * \file void_command_defaults.h
  *
- * \date Created: 06/04/20
+ * \date Created: 09/18/21
  * \author Zachary Heylmun
  *
  */
 
-#ifndef VOID_COMMAND_H
-#define VOID_COMMAND_H
+#ifndef VOID_COMMAND_DEFAULTS_H
+#define VOID_COMMAND_DEFAULTS_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
 
-#include "void_command_types.h"
+#include "void_command.h"
 #include "void_shell.h"
 
-void vc_init();
+extern const struct vc_description default_help_command_description;
+extern const struct vc_description default_clear_command_description;
 
-void vc_activate( const_vs_handle vs );
-
-bool vc_register( const struct vc_description *description );
-
-size_t vc_completion_available( const char *partial_command, size_t input_len, size_t max_len );
-
-size_t vc_complete_command( char *in_out_string, size_t current_len, size_t max_len );
-
-void vc_handle_command( const_vs_handle shell, const char *command_string );
-
-void vc_print_context( const_vs_handle shell );
-
-void vc_print_greeting( const_vs_handle shell );
-
-#endif // VOID_COMMAND_H
+#endif // VOID_COMMAND_DEFAULTS_H

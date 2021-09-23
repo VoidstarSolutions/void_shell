@@ -23,37 +23,53 @@
 ==============================================================================*/
 
 /**
- * \file void_command.h
- *
- * \date Created: 06/04/20
+ * \file void_shell_internal.h
+ * \brief Module providing shell functionality
+ * \date created: 06/04/20
  * \author Zachary Heylmun
- *
  */
 
-#ifndef VOID_COMMAND_H
-#define VOID_COMMAND_H
+#ifndef VOID_COMMAND_INTERNAL_H
+#define VOID_COMMAND_INTERNAL_H
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
-#include "void_command_types.h"
-#include "void_shell.h"
+#ifndef VC_DEFAULT_COMMANDS
+#define VC_DEFAULT_COMMANDS true
+#endif // VC_DEFAULT_COMMANDS
 
-void vc_init();
+#ifndef VC_MAX_COMMANDS
+#define VC_MAX_COMMANDS ( (size_t) 32 )
+#endif // VC_MAX_COMMANDS
 
-void vc_activate( const_vs_handle vs );
+#ifndef VC_MAX_COMMAND_LEN
+#define VC_MAX_COMMAND_LEN ( (size_t) 32 )
+#endif // VC_MAX_COMMAND_LEN
 
-bool vc_register( const struct vc_description *description );
+typedef void ( *command_handler )( int argc, char **argv );
 
-size_t vc_completion_available( const char *partial_command, size_t input_len, size_t max_len );
+struct vc_data
+{
+	uint16_t                     registered_command_count;
+	struct vc_description const *registered_commands[VC_MAX_COMMANDS];
+	struct vc_description const *active_modal_command;
+};
 
-size_t vc_complete_command( char *in_out_string, size_t current_len, size_t max_len );
+/**
+ * Struct to define a new command. Defines a single command processor
+ */
+struct vc_description
+{
+	/** console command string */
+	const char *command_string;
+	/** function called by command  */
+	const command_handler command;
+	/** Help string for command */
+	const char *help_string;
+};
 
-void vc_handle_command( const_vs_handle shell, const char *command_string );
+extern struct vc_data *vc;
 
-void vc_print_context( const_vs_handle shell );
-
-void vc_print_greeting( const_vs_handle shell );
-
-#endif // VOID_COMMAND_H
+#endif // VOID_COMMAND_INTERNAL_H
