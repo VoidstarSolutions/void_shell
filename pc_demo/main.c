@@ -9,7 +9,7 @@
 int8_t shell_get_char( void ) { return getchar(); }
 
 //NOLINTNEXTLINE
-int _putchar( char character ) { return putchar( character ); }
+void _putchar( char character ) { putchar( character ); }
 
 void shell_output( const char *data, size_t length )
 {
