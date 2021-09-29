@@ -219,12 +219,12 @@ void test_vs_attempt_autocomplete()
 	// Should have wrapped
 	TEST_ASSERT_EQUAL( 0, shell->start_index );
 	// mock didn't change buffer
-	TEST_ASSERT_EQUAL_STRING("h",shell->input_buffer);
-	TEST_ASSERT_EQUAL_STRING("h", output_buffer);
+	TEST_ASSERT_EQUAL_STRING( "h", shell->input_buffer );
+	TEST_ASSERT_EQUAL_STRING( "h", output_buffer );
 	reset_output_buffer();
-	start_of_command = &shell->input_buffer[shell->start_index];
+	start_of_command       = &shell->input_buffer[shell->start_index];
 	shell->input_buffer[0] = 'c';
-	shell->line_length = 1;
+	shell->line_length     = 1;
 	vc_complete_command_ExpectAndReturn( start_of_command, 1, false, 5 );
 	vc_complete_command_ExpectAndReturn( "c", 1, true, 5 );
 	vs_start_of_line_Expect( shell );
@@ -235,13 +235,26 @@ void test_vs_attempt_autocomplete()
 	TEST_ASSERT_EQUAL_STRING( "c", output_buffer );
 
 	reset_output_buffer();
-	
+
 	// No command, should bel
 	vc_complete_command_ExpectAndReturn( start_of_command, 5, false, 0 );
 	vs_attempt_autocomplete( shell );
 	TEST_ASSERT_EQUAL( 0, shell->start_index );
 	TEST_ASSERT_EQUAL_STRING( "c", shell->input_buffer );
 	TEST_ASSERT_EQUAL_STRING( "\7", output_buffer );
+}
+
+void test_vs_process_command()
+{
+	vs_handle shell    = vs_default_shell;
+	vs_start_of_line_Expect( shell);
+	vs_erase_after_cursor_Expect(shell);
+	vc_print_context_Expect(shell);
+	vs_start_of_line_Expect(shell);
+	vs_erase_after_cursor_Expect(shell);
+	vc_handle_command_Expect(shell, shell->input_buffer);
+	// TODO
+	vs_process_command(shell);
 }
 
 void test_vs_init( void )
@@ -251,6 +264,18 @@ void test_vs_init( void )
 	vs_init( vs_default_shell );
 	const uint8_t *shell_data = (uint8_t *) vs_default_shell;
 	TEST_ASSERT_EQUAL_UINT8_ARRAY( 0, *shell_data, sizeof( struct vs_data ) );
+}
+
+void test_vs_clear_console( void )
+{
+	vs_handle shell      = vs_default_shell;
+	shell->cursor_column = 9;
+	shell->cursor_line   = 9;
+	vs_clear_text_Expect( shell );
+	vs_home_Expect( shell );
+	vs_clear_console( shell );
+	TEST_ASSERT_EQUAL( 0, shell->cursor_column );
+	TEST_ASSERT_EQUAL( 0, shell->cursor_line );
 }
 
 void test_vs_output_internal( void )
