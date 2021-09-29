@@ -23,35 +23,30 @@
 ==============================================================================*/
 
 /**
- * \file void_command.h
+ * @file test_void_command.c
  *
- * \date Created: 06/04/20
- * \author Zachary Heylmun
+ * @date Created: 09/28/21
+ * @author Zachary Heylmun
  *
  */
 
-#ifndef VOID_COMMAND_H
-#define VOID_COMMAND_H
+#include "void_command.h"
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "void_command_types.h"
+#include "../third_party/cmock/vendor/unity/src/unity.h"
+#include "../third_party/printf/printf.h"
+
+// Needed for default commands
 #include "void_shell.h"
+#include "void_command_default_commands.h"
 
-void vc_init();
+#include "../build/test/mocks/mock_void_shell_utilities.h"
 
-void vc_activate( const_vs_handle vs );
 
-bool vc_register( const struct vc_description *description );
+void _putchar( char character ) { putchar( character ); }
 
-size_t vc_complete_command( char *in_out_string, size_t input_len, bool modify_buffer );
-
-void vc_handle_command( const_vs_handle shell, const char *command_string );
-
-void vc_print_context( const_vs_handle shell );
-
-void vc_print_greeting( const_vs_handle shell );
-
-#endif // VOID_COMMAND_H
+void vc_print_greeting( const_vs_handle shell )
+{
+}
