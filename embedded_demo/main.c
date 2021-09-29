@@ -34,10 +34,11 @@ void vc_print_greeting( const_vs_handle shell )
 }
 
 int main()
-{
+{ 
 	vs_init(vs_default_shell);
 	vs_configure( vs_default_shell, &shell_get_char, &shell_output, true );
-	vc_init( vs_default_shell );
+	vc_init();
+	vc_activate( vs_default_shell );
 	while ( true )
 	{
 		vs_run( vs_default_shell );
