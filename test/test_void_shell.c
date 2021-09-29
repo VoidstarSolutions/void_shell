@@ -215,10 +215,33 @@ void test_vs_attempt_autocomplete()
 	vc_complete_command_ExpectAndReturn( "h", 1, true, 4 );
 	vs_start_of_line_Expect( shell );
 	vc_print_context_Expect( shell );
-
+	vs_attempt_autocomplete( shell );
+	// Should have wrapped
+	TEST_ASSERT_EQUAL( 0, shell->start_index );
+	// mock didn't change buffer
+	TEST_ASSERT_EQUAL_STRING("h",shell->input_buffer);
+	TEST_ASSERT_EQUAL_STRING("h", output_buffer);
+	reset_output_buffer();
+	start_of_command = &shell->input_buffer[shell->start_index];
+	shell->input_buffer[0] = 'c';
+	shell->line_length = 1;
+	vc_complete_command_ExpectAndReturn( start_of_command, 1, false, 5 );
+	vc_complete_command_ExpectAndReturn( "c", 1, true, 5 );
+	vs_start_of_line_Expect( shell );
+	vc_print_context_Expect( shell );
 	vs_attempt_autocomplete( shell );
 	TEST_ASSERT_EQUAL( 0, shell->start_index );
+	TEST_ASSERT_EQUAL_STRING( "c", shell->input_buffer );
+	TEST_ASSERT_EQUAL_STRING( "c", output_buffer );
+
 	reset_output_buffer();
+	
+	// No command, should bel
+	vc_complete_command_ExpectAndReturn( start_of_command, 5, false, 0 );
+	vs_attempt_autocomplete( shell );
+	TEST_ASSERT_EQUAL( 0, shell->start_index );
+	TEST_ASSERT_EQUAL_STRING( "c", shell->input_buffer );
+	TEST_ASSERT_EQUAL_STRING( "\7", output_buffer );
 }
 
 void test_vs_init( void )
