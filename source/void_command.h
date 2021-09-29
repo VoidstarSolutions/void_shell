@@ -46,9 +46,8 @@ void vc_activate( const_vs_handle vs );
 
 bool vc_register( const struct vc_description *description );
 
-size_t vc_completion_available( const char *partial_command, size_t input_len, size_t max_len );
 
-size_t vc_complete_command( char *in_out_string, size_t current_len, size_t max_len );
+size_t vc_complete_command( char *in_out_string, size_t input_len, bool modify_buffer );
 
 void vc_handle_command( const_vs_handle shell, const char *command_string );
 

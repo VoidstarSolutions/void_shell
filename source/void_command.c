@@ -43,8 +43,26 @@
 #include "void_shell.h"
 #include "void_shell_utilities.h"
 
-static struct vc_data  instance;
-struct vc_data *vc = &instance;
+static struct vc_data instance;
+struct vc_data *      vc = &instance;
+
+VS_STATIC bool
+vc_input_matches( const char *input, size_t input_len, const struct vc_description *command )
+{
+	bool match = false;
+	if ( input_len <= strnlen( command->command_string, VC_MAX_COMMAND_LEN ) )
+	{
+		match = true;
+		for ( uint16_t char_index = 0; char_index != input_len; ++char_index )
+		{
+			if ( input[char_index] != command->command_string[char_index] )
+			{
+				match = false;
+			}
+		}
+	}
+	return match;
+}
 
 void vc_init()
 {
@@ -74,54 +92,28 @@ bool vc_register( const struct vc_description *description )
 	return true;
 }
 
-size_t vc_completion_available( const char *partial_command, size_t input_len, size_t max_len )
+size_t vc_complete_command( char *in_out_string, size_t input_len, bool modify_buffer )
 {
-	(void) ( partial_command );
-	(void) ( input_len );
-	(void) ( max_len );
-	//const struct vc_data *command = &void_command_instance;
-	return 0;
-}
-
-size_t vc_complete_command( char *in_out_string, size_t input_len, size_t max_len )
-{
-	(void) ( max_len );
-	uint16_t match_index = vc->registered_command_count;
-	for ( uint16_t command_index = 0; command_index != vc->registered_command_count;
-	      ++command_index )
+	uint16_t command_index = 0;
+	for ( ; command_index != vc->registered_command_count; ++command_index )
 	{
-		struct vc_description const *desc = vc->registered_commands[command_index];
-		if ( input_len <= strnlen( desc->command_string, VC_MAX_COMMAND_LEN ) )
+		struct vc_description const *command = vc->registered_commands[command_index];
+		if ( vc_input_matches( in_out_string, input_len, command ) )
 		{
-			bool match = true;
-			for ( uint16_t char_index = 0; char_index != input_len; ++char_index )
-			{
-				if ( in_out_string[char_index] != desc->command_string[char_index] )
-				{
-					match = false;
-				}
-			}
-			if ( match )
-			{
-				if ( match_index == vc->registered_command_count )
-				{
-					match_index = command_index;
-				}
-				else
-				{
-					return 0;
-				}
-			}
+			// We've found a matching command, stop searching
+			break;
 		}
 	}
-	if ( match_index != vc->registered_command_count )
+	if ( command_index != vc->registered_command_count )
 	{
-		struct vc_description const *match   = vc->registered_commands[match_index];
+		struct vc_description const *match   = vc->registered_commands[command_index];
 		size_t                       new_len = strnlen( match->command_string, VC_MAX_COMMAND_LEN );
-		for ( uint16_t char_index = 0; char_index != new_len; ++char_index )
+		if ( modify_buffer )
 		{
-			in_out_string[char_index] = match->command_string[char_index];
+			//Write command completion into buffer
+			memcpy( in_out_string, match->command_string, new_len );
 		}
+
 		return new_len;
 	}
 	return 0;

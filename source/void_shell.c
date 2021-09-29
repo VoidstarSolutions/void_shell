@@ -43,7 +43,7 @@
 
 #if ( VS_DEFAULT_SHELL == true )
 static struct vs_data vs_default_shell_data;
-vs_handle vs_default_shell = &vs_default_shell_data;
+vs_handle             vs_default_shell = &vs_default_shell_data;
 #endif
 
 VS_STATIC_INLINE bool vs_history_entry_active( const struct vs_history_entry *entry )
@@ -138,11 +138,20 @@ VS_STATIC void vs_display_history_command( struct vs_data *shell )
 VS_STATIC_INLINE void vs_attempt_autocomplete( struct vs_data *shell )
 {
 	char *command_string = &shell->input_buffer[shell->start_index];
+	// Check if the command is a substring, but don't modify the input buffer yet
+	size_t required_size = vc_complete_command( command_string, shell->line_length, false );
+	assert( required_size < VS_BUFFER_SIZE );
 
-	size_t updated_len = vc_complete_command(
-	    command_string, shell->line_length, ( VS_BUFFER_SIZE - shell->start_index ) );
-	if ( updated_len != 0 )
-	{
+	if ( required_size != 0 )
+	{ 
+		// Check if the command completion is too long without wrapping
+		if ( required_size > VS_BUFFER_SIZE - shell->start_index )
+		{
+			vs_buffer_wrapped( shell );
+			command_string = &shell->input_buffer[shell->start_index];
+		}
+		// Update the buffer this time
+		size_t updated_len = vc_complete_command( command_string, shell->line_length, true );
 		vs_start_of_line( shell );
 		vc_print_context( shell );
 		shell->cursor_column = updated_len;
@@ -162,7 +171,6 @@ VS_STATIC_INLINE void vs_attempt_autocomplete( struct vs_data *shell )
  */
 VS_STATIC void vs_process_command( struct vs_data *shell )
 {
-
 	size_t terminator_index = shell->start_index + shell->line_length;
 
 	// null terminate the command

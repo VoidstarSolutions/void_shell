@@ -35,12 +35,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../third_party/cmock/vendor/unity/src/unity.h"
 #include "../third_party/printf/printf.h"
-#include "../third_party/unity/src/unity.h"
 
 #include "../build/test/mocks/mock_void_command.h"
 #include "../build/test/mocks/mock_void_shell_utilities.h"
-
 
 static uint8_t     input_index  = 0;
 static uint8_t     output_index = 0;
@@ -129,8 +128,8 @@ void test_vs_invalidate_history( void )
 
 void test_vs_buffer_wrapped()
 {
-	comparison_ptr        = &sequential_comparison_array[0];
-	input_index           = 0;
+	comparison_ptr = &sequential_comparison_array[0];
+	reset_output_buffer();
 	vs_handle shell = vs_default_shell;
 
 	// write some data into the end of the buffer
@@ -153,7 +152,6 @@ void test_vs_buffer_wrapped()
 void test_vs_display_history_command()
 {
 	comparison_ptr = &sequential_comparison_array[0];
-	input_index    = 0;
 	reset_output_buffer();
 
 	vs_handle shell = vs_default_shell;
@@ -204,14 +202,31 @@ void test_vs_display_history_command()
 	TEST_ASSERT_EQUAL( 3, shell->previous_commands[3].length );
 }
 
-void test_vs_attempt_autocomplete() {}
+void test_vs_attempt_autocomplete()
+{
+	reset_output_buffer();
+	vs_handle shell    = vs_default_shell;
+	shell->start_index = VS_BUFFER_SIZE - 3;
+	shell->line_length = 1;
+	// start entering "help" near end of buffer
+	shell->input_buffer[shell->start_index] = 'h';
+	char *start_of_command                  = &shell->input_buffer[shell->start_index];
+	vc_complete_command_ExpectAndReturn( start_of_command, 1, false, 4 );
+	vc_complete_command_ExpectAndReturn( "h", 1, true, 4 );
+	vs_start_of_line_Expect( shell );
+	vc_print_context_Expect( shell );
+
+	vs_attempt_autocomplete( shell );
+	TEST_ASSERT_EQUAL( 0, shell->start_index );
+	reset_output_buffer();
+}
 
 void test_vs_init( void )
 {
 	vs_clear_text_Expect( vs_default_shell );
 	vs_home_Expect( vs_default_shell );
 	vs_init( vs_default_shell );
-	const uint8_t * shell_data = (uint8_t*)vs_default_shell;
+	const uint8_t *shell_data = (uint8_t *) vs_default_shell;
 	TEST_ASSERT_EQUAL_UINT8_ARRAY( 0, *shell_data, sizeof( struct vs_data ) );
 }
 
