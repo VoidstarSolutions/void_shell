@@ -1,0 +1,7 @@
+clang
+%c -std=c99
+-I./source
+-I./third_party/RTT
+-I./third_party/cmock/src
+-I./third_party/cmock/vendor/unity/src
+-I./third_party/printf

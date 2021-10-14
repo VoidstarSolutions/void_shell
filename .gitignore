@@ -9,3 +9,5 @@ doxygen/
 
 bw-output/
 /.ccls-cache/
+
+.ccls-cache/
