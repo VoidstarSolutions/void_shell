@@ -8,3 +8,4 @@ doxygen/
 .scannerwork/
 
 bw-output/
+/.ccls-cache/
