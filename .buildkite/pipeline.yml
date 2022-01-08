@@ -6,9 +6,6 @@ steps:
     artifact_paths: "compile_commands.json"
 
   - command:
-    - bash scripts/build_desktop_demo.sh
-
-  - command:
       - bash scripts/run_tests.sh
     label: "Ceedling Tests"
     artifact_paths:
