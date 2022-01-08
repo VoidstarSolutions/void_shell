@@ -18,5 +18,3 @@ steps:
       - buildkite-agent artifact download "build/artifacts/gcov/sonar_coverage.xml" .
       - bash scripts/run_analysis.sh
     label: "SonarCloud Analysis"
-    env:
-      SONAR_TOKEN: "80641e654940ef85318f565a7692fee00e4e01d8"
