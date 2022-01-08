@@ -1,29 +1,23 @@
 steps:
-  - command: "bash scripts/configure.sh"
-    label: "CMake Configure"
-    artifact_paths: "build/**/*"
-
-  - wait
 
   - command:
-      - buildkite-agent artifact download "build/*" .
-      - bash scripts/build.sh
-    label: "CMake Build"
+      - bash scripts/build_embedded_demo.sh
+    label: "Build embedded demo"
     artifact_paths: "build/compile_commands.json"
 
-  - wait
+  - command:
+    - bash scripts/build_desktop_demo.sh
 
   - command:
       - bash scripts/run_tests.sh
     label: "Ceedling Tests"
     artifact_paths:
-      - build/compile_commands.json
       - build/artifacts/gcov/sonar_coverage.xml
 
   - wait
 
   - command:
-      - buildkite-agent artifact download "build/*" .
+      - buildkite-agent artifact download "build/compile_commands.json" .
       - bash scripts/run_analysis.sh
     label: "SonarCloud Analysis"
     env:

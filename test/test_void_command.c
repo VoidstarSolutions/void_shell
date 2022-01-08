@@ -35,18 +35,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../third_party/cmock/vendor/unity/src/unity.h"
-#include "../third_party/printf/printf.h"
+#include "unity.h"
+#include "printf.h"
 
 // Needed for default commands
 #include "void_shell.h"
-#include "void_command_default_commands.h"
 
-#include "../build/test/mocks/mock_void_shell_utilities.h"
+#include "mock_void_shell_utilities.h"
 
 
 void _putchar( char character ) { putchar( character ); }
 
-void vc_print_greeting( const_vs_handle shell )
+void vc_print_greeting()
 {
 }

@@ -37,21 +37,50 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "void_command_types.h"
 #include "void_shell.h"
 
-void vc_init();
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-void vc_activate( const_vs_handle vs );
+#ifndef VC_DEFAULT_COMMANDS
+#define VC_DEFAULT_COMMANDS true
+#endif // VC_DEFAULT_COMMANDS
+
+#ifndef VC_MAX_COMMANDS
+#define VC_MAX_COMMANDS ( (size_t) 16 )
+#endif // VC_MAX_COMMANDS
+
+#ifndef VC_MAX_COMMAND_LEN
+#define VC_MAX_COMMAND_LEN ( (size_t) 32 )
+#endif // VC_MAX_COMMAND_LEN
+
+typedef void ( *command_handler )( int argc, char **argv );
+
+
+/**
+ * Struct to define a new command. Defines a single command processor
+ */
+struct vc_description
+{
+	/** console command string */
+	const char *command_string;
+	/** function called by command  */
+	const command_handler command;
+	/** Help string for command */
+	const char *help_string;
+};
+
+void vc_init();
 
 bool vc_register( const struct vc_description *description );
 
 size_t vc_complete_command( char *in_out_string, size_t input_len, bool modify_buffer );
 
-void vc_handle_command( const_vs_handle shell, const char *command_string );
+void vc_handle_command( const char *command_string );
 
-void vc_print_context( const_vs_handle shell );
+void vc_print_context( bool active );
 
-void vc_print_greeting( const_vs_handle shell );
+void vc_print_greeting( void );
 
 #endif // VOID_COMMAND_H

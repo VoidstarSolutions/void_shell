@@ -35,337 +35,324 @@
 #include <assert.h>
 #include <string.h>
 
-// Force intellisense to get the right printf header
-#include "../third_party/printf/printf.h"
-
 #include "void_command.h"
+#include "void_shell_internal.h"
 #include "void_shell_utilities.h"
 
-#if ( VS_DEFAULT_SHELL == true )
-static struct vs_data vs_default_shell_data;
-vs_handle             vs_default_shell = &vs_default_shell_data;
-#endif
+
+VS_STATIC struct vs_data shell;
 
 VS_STATIC_INLINE bool vs_history_entry_active( const struct vs_history_entry *entry )
 {
-	assert( entry->length > 0 || entry->start_index == 0 );
-	return entry->length > 0;
-}
-
-/** 
- * @brief Invalidate any command completion strings that we've overrun
- * 
- * @param [in,out] shell shell data for which overrun history should be invalidated
- * */
-VS_STATIC void vs_invalidate_history( struct vs_data *shell )
-{
-	for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; ++cmd_idx )
-	{
-		const struct vs_history_entry *entry = &shell->previous_commands[cmd_idx];
-		if ( vs_history_entry_active( entry )            // entry is active
-		     && shell->line_length > 0                   // the line has overwritten anything
-		     && entry->start_index <= shell->start_index // entry starts before current command
-		     && entry->start_index + entry->length > shell->start_index // and ends after it starts
-		)
-		{
-			memset( &shell->input_buffer[entry->start_index], '\0', entry->length );
-			shell->previous_commands[cmd_idx].start_index = 0;
-			shell->previous_commands[cmd_idx].length      = 0;
-		}
-	}
+    assert( entry->length > 0 || entry->start_index == 0 );
+    uint16_t test = UINT16_MAX;
+    return entry->length > 0;
 }
 
 /**
- * @brief Handle any cleanup and wrap back to the begining of the input buffer 
- * @param [in,out] shell shell data for handling wrapped buffer
- **/
-VS_STATIC void vs_buffer_wrapped( struct vs_data *shell )
+ * @brief Invalidate any command completion strings that we've overrun
+ *
+ * @param [in,out] shell shell data for which overrun history should be invalidated
+ * */
+VS_STATIC void vs_invalidate_history( void )
 {
-	// copy our current command to the start of the buffer
-	memcpy( shell->input_buffer, &shell->input_buffer[shell->start_index], shell->line_length );
-	// erase the leftovers
-	memset( &shell->input_buffer[shell->start_index], '\0', shell->line_length );
-	shell->start_index = 0;
-	vs_invalidate_history( shell );
+    for ( unsigned cmd_idx = 0; cmd_idx < VS_COMMAND_HISTORY_COUNT; ++cmd_idx )
+    {
+        const struct vs_history_entry *entry = &shell.previous_commands[cmd_idx];
+        if ( vs_history_entry_active( entry )           // entry is active
+             && shell.line_length > 0                   // the line has overwritten anything
+             && entry->start_index <= shell.start_index // entry starts before current command
+             && entry->start_index + entry->length > shell.start_index // and ends after it starts
+        )
+        {
+            memset( &shell.input_buffer[entry->start_index], '\0', entry->length );
+            shell.previous_commands[cmd_idx].start_index = 0;
+            shell.previous_commands[cmd_idx].length      = 0;
+        }
+    }
 }
 
-/** 
- * @brief Display the selected history command.  If the shell is dirty, the 
+/**
+ * @brief Handle any cleanup and wrap back to the begining of the input buffer
+ * @param [in,out] shell shell data for handling wrapped buffer
+ **/
+VS_STATIC void vs_buffer_wrapped( void )
+{
+    // copy our current command to the start of the buffer
+    memcpy( shell.input_buffer, &shell.input_buffer[shell.start_index], shell.line_length );
+    // erase the leftovers
+    memset( &shell.input_buffer[shell.start_index], '\0', shell.line_length );
+    shell.start_index = 0;
+    vs_invalidate_history();
+}
+
+/**
+ * @brief Display the selected history command.  If the shell is dirty, the
  * current command will be preserved
  * @param[in,out] shell Shell data to display history from
  */
-VS_STATIC void vs_display_history_command( struct vs_data *shell )
+VS_STATIC void vs_display_history_command( void )
 {
-	vs_start_of_line( shell );
-	vs_erase_after_cursor( shell );
+    vs_start_of_line();
+    vs_erase_after_cursor();
 
-	vc_print_context( shell );
-	if ( shell->dirty )
-	{
-		shell->previous_commands[shell->command_index].start_index = shell->start_index;
-		shell->previous_commands[shell->command_index].length      = shell->line_length;
-		// Jump ahead in the buffer to preserve what we've typed
-		shell->start_index += shell->line_length;
-		// This can't wrap, or we would have already handled it, but just in case
-		assert( shell->start_index < VS_BUFFER_SIZE );
-	}
+    vc_print_context(true);
+    if ( shell.dirty )
+    {
+        shell.previous_commands[shell.command_index].start_index = shell.start_index;
+        shell.previous_commands[shell.command_index].length      = shell.line_length;
+        // Jump ahead in the buffer to preserve what we've typed
+        shell.start_index += shell.line_length;
+        // This can't wrap, or we would have already handled it, but just in case
+        assert( shell.start_index < VS_BUFFER_SIZE );
+    }
 
-	const struct vs_history_entry *requested_command =
-	    &shell->previous_commands[shell->requested_command_index];
-	// check if the history command wraps the input buffer
-	if ( shell->start_index + requested_command->length >= VS_BUFFER_SIZE )
-	{
-		// We wrapped the input buffer, res=etting to index 0
-		vs_buffer_wrapped( shell );
-	}
-	memset( &shell->input_buffer[shell->start_index], '\0', shell->line_length );
-	vs_output_internal(
-	    shell, &shell->input_buffer[requested_command->start_index], requested_command->length );
+    const struct vs_history_entry *requested_command =
+        &shell.previous_commands[shell.requested_command_index];
+    // check if the history command wraps the input buffer
+    if ( shell.start_index + requested_command->length >= VS_BUFFER_SIZE )
+    {
+        // We wrapped the input buffer, res=etting to index 0
+        vs_buffer_wrapped();
+    }
+    memset( &shell.input_buffer[shell.start_index], '\0', shell.line_length );
+    vs_output( &shell.input_buffer[requested_command->start_index], requested_command->length );
 
-	memcpy( &shell->input_buffer[shell->start_index],
-	        &shell->input_buffer[requested_command->start_index],
-	        requested_command->length );
-	shell->command_index = shell->requested_command_index;
-	shell->cursor_column = requested_command->length;
-	shell->line_length   = requested_command->length;
-	shell->dirty         = false;
+    memcpy( &shell.input_buffer[shell.start_index],
+            &shell.input_buffer[requested_command->start_index],
+            requested_command->length );
+    shell.command_index = shell.requested_command_index;
+    shell.cursor_column = requested_command->length;
+    shell.line_length   = requested_command->length;
+    shell.dirty         = false;
 }
 
-/** 
+/**
  * @brief Request command completion from command processor for current command
  * @param[in,out] shell Shell Data for current command
  */
-VS_STATIC_INLINE void vs_attempt_autocomplete( struct vs_data *shell )
+VS_STATIC_INLINE void vs_attempt_autocomplete( void )
 {
-	char *command_string = &shell->input_buffer[shell->start_index];
-	// Check if the command is a substring, but don't modify the input buffer yet
-	size_t required_size = vc_complete_command( command_string, shell->line_length, false );
-	assert( required_size < VS_BUFFER_SIZE );
+    char *command_string = &shell.input_buffer[shell.start_index];
+    // Check if the command is a substring, but don't modify the input buffer yet
+    size_t required_size = vc_complete_command( command_string, shell.line_length, false );
+    assert( required_size < VS_BUFFER_SIZE );
 
-	if ( required_size != 0 )
-	{ 
-		// Check if the command completion is too long without wrapping
-		if ( required_size > VS_BUFFER_SIZE - shell->start_index )
-		{
-			vs_buffer_wrapped( shell );
-			command_string = &shell->input_buffer[shell->start_index];
-		}
-		// Update the buffer this time
-		size_t updated_len = vc_complete_command( command_string, shell->line_length, true );
-		vs_start_of_line( shell );
-		vc_print_context( shell );
-		shell->cursor_column = updated_len;
-		shell->line_length   = updated_len;
-		vs_output_internal( shell, &shell->input_buffer[shell->start_index], updated_len );
-	}
-	else
-	{
-		char bel = 7;
-		vs_output_internal( shell, &bel, 1 );
-	}
+    if ( required_size != 0 )
+    {
+        // Check if the command completion is too long without wrapping
+        if ( required_size > VS_BUFFER_SIZE - shell.start_index )
+        {
+            vs_buffer_wrapped();
+            command_string = &shell.input_buffer[shell.start_index];
+        }
+        // Update the buffer this time
+        size_t updated_len = vc_complete_command( command_string, shell.line_length, true );
+        vs_start_of_line();
+        vc_print_context(true);
+        shell.cursor_column = updated_len;
+        shell.line_length   = updated_len;
+        vs_output( &shell.input_buffer[shell.start_index], updated_len );
+    }
+    else
+    {
+        char bel = 7;
+        vs_output( &bel, 1 );
+    }
 }
 
-/** 
+/**
  * @brief Evaluate the current command
  * @param[in,out] shell Shell Data for current command
  */
-VS_STATIC void vs_process_command( struct vs_data *shell )
+VS_STATIC void vs_process_command( void )
 {
-	size_t terminator_index = shell->start_index + shell->line_length;
+    size_t terminator_index = shell.start_index + shell.line_length;
 
-	// null terminate the command
-	shell->input_buffer[terminator_index] = '\0';
-	++shell->line_length;
-	// If the null terminator stomped on a history command invalidate it
-	vs_invalidate_history( shell );
+    // null terminate the command
+    shell.input_buffer[terminator_index] = '\0';
+    ++shell.line_length;
+    // If the null terminator stomped on a history command invalidate it
+    vs_invalidate_history();
 
-	const char *command_start = &shell->input_buffer[shell->start_index];
-	vs_start_of_line( shell );
-	vs_erase_after_cursor( shell );
-	vc_print_context( shell );
-	printf( command_start );
+    const char *command_start = &shell.input_buffer[shell.start_index];
+    vs_start_of_line();
+    vs_erase_after_cursor();
+    vc_print_context(false);
+    vs_output( command_start, strlen(command_start) );
 
-	// new line received echo a line separator
-	vs_output_internal( shell, "\n", 1 );
-	vs_start_of_line( shell );
-	vs_erase_after_cursor( shell );
-	if ( shell->line_length == 0 )
-	{
-		vc_print_context( shell );
-		return;
-	}
+    // new line received echo a line separator
+    vs_output( "\n", 1 );
+    vs_start_of_line();
+    vs_erase_after_cursor();
+    if ( shell.line_length == 0 )
+    {
+        vc_print_context(true);
+        return;
+    }
 
-	vc_handle_command( shell, command_start );
-	shell->previous_commands[shell->command_index].start_index = shell->start_index;
-	shell->previous_commands[shell->command_index].length      = shell->line_length;
-	shell->command_index           = ( shell->command_index + 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
-	shell->requested_command_index = shell->command_index;
-	shell->start_index             = ( shell->start_index + shell->line_length );
-	shell->cursor_column           = 0;
-	shell->line_length             = 0;
-	++shell->cursor_line;
-	shell->dirty = false;
+    vc_handle_command( command_start );
+    shell.previous_commands[shell.command_index].start_index = shell.start_index;
+    shell.previous_commands[shell.command_index].length      = shell.line_length;
+    shell.command_index           = ( shell.command_index + 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
+    shell.requested_command_index = shell.command_index;
+    shell.start_index             = ( shell.start_index + shell.line_length );
+    shell.cursor_column           = 0;
+    shell.line_length             = 0;
+    ++shell.cursor_line;
+    shell.dirty = false;
 }
 
-/** 
+/**
  * @brief Handle character as part of escape sequence
- * @param[in,out] shell Shell data for current command 
+ * @param[in,out] shell Shell data for current command
  * @param[in] input_char Potential next character in escape sequence
  * @return false if escape sequence is invalid
  **/
-VS_STATIC bool process_escape_sequence( struct vs_data *shell, char input_char )
+VS_STATIC bool process_escape_sequence( char input_char )
 {
-	shell->escape_sequence_buffer[shell->escape_sequence_index++] = input_char;
-	if ( shell->escape_sequence_index == 2 && shell->escape_sequence_buffer[1] != '[' )
-	{
-		/* Not a valid escape sequence */
-		shell->escape_sequence_index = 0;
-		return false;
-	}
-	else if ( shell->escape_sequence_index == 3 )
-	{
-		switch ( shell->escape_sequence_buffer[2] )
-		{
-			case 'A': /* Up Arrow */
-				shell->requested_command_index =
-				    ( shell->requested_command_index - 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
-				vs_display_history_command( shell );
-				break;
-			case 'B': /* Down Arrow */
-				shell->requested_command_index =
-				    ( shell->requested_command_index + 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
-				vs_display_history_command( shell );
-				break;
-			case 'C': /* Right Arrow */
-				if ( shell->cursor_column < shell->line_length )
-				{
-					vs_right( shell );
-					++shell->cursor_column;
-				}
-				break;
-			case 'D': /* Left Arrow */
-				if ( shell->cursor_column > 0 )
-				{
-					vs_left( shell );
-					--shell->cursor_column;
-				}
-				break;
-			default:
-				break;
-		}
-		shell->escape_sequence_index = 0;
-	}
-	return true;
+    shell.escape_sequence_buffer[shell.escape_sequence_index++] = input_char;
+    if ( shell.escape_sequence_index == 2 && shell.escape_sequence_buffer[1] != '[' )
+    {
+        /* Not a valid escape sequence */
+        shell.escape_sequence_index = 0;
+        return false;
+    }
+    else if ( shell.escape_sequence_index == 3 )
+    {
+        switch ( shell.escape_sequence_buffer[2] )
+        {
+            case 'A': /* Up Arrow */
+                shell.requested_command_index =
+                    ( shell.requested_command_index - 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
+                vs_display_history_command();
+                break;
+            case 'B': /* Down Arrow */
+                shell.requested_command_index =
+                    ( shell.requested_command_index + 1 ) & VS_COMMAND_HISTORY_INDEX_MASK;
+                vs_display_history_command();
+                break;
+            case 'C': /* Right Arrow */
+                if ( shell.cursor_column < shell.line_length )
+                {
+                    vs_right();
+                    ++shell.cursor_column;
+                }
+                break;
+            case 'D': /* Left Arrow */
+                if ( shell.cursor_column > 0 )
+                {
+                    vs_left();
+                    --shell.cursor_column;
+                }
+                break;
+            default:
+                break;
+        }
+        shell.escape_sequence_index = 0;
+    }
+    return true;
 }
 
 /**
  * @brief Handle a received character
- * 
+ *
  * @param [in,out] shell Shell data to add received character to
  * @param [in] input_char received character to process
  */
-VS_STATIC_INLINE void process_received_char( struct vs_data *shell, char input_char )
+VS_STATIC_INLINE void process_received_char( char input_char )
 {
-	size_t character_index = ( shell->start_index + shell->cursor_column ) & VS_BUFFER_INDEX_MASK;
+    size_t character_index = ( shell.start_index + shell.cursor_column ) & VS_BUFFER_INDEX_MASK;
 
-	if ( input_char == '\b' || /* backspace */
-	     input_char == 0x7f /* delete (for Mac)*/ )
-	{
-		input_char = '\b';
-		if ( shell->cursor_column )
-		{
-			vs_output_internal( shell, &input_char, 1 );
-			vs_erase_after_cursor( shell );
-			--shell->cursor_column;
-			shell->line_length                     = shell->cursor_column;
-			shell->input_buffer[--character_index] = '\0';
-			shell->dirty                           = true;
-		}
-	}
-	else
-	{
-		if ( shell->cursor_column && character_index == 0 )
-		{
-			vs_buffer_wrapped( shell );
-			character_index = shell->cursor_column;
-		}
-		vs_output_internal( shell, &input_char, 1 );
-		shell->input_buffer[character_index++] = input_char;
-		shell->input_buffer[character_index]   = '\0';
-		++shell->cursor_column;
-		if ( shell->cursor_column > shell->line_length )
-		{
-			shell->line_length = shell->cursor_column;
-		}
-		shell->dirty = true;
-		vs_invalidate_history( shell );
-	}
+    if ( input_char == '\b' || /* backspace */
+         input_char == 0x7f /* delete (for Mac)*/ )
+    {
+        input_char = '\b';
+        if ( shell.cursor_column )
+        {
+            vs_output( &input_char, 1 );
+            vs_erase_after_cursor();
+            --shell.cursor_column;
+            shell.line_length                     = shell.cursor_column;
+            shell.input_buffer[--character_index] = '\0';
+            shell.dirty                           = true;
+        }
+    }
+    else
+    {
+        if ( shell.cursor_column && character_index == 0 )
+        {
+            vs_buffer_wrapped();
+            character_index = shell.cursor_column;
+        }
+        vs_output( &input_char, 1 );
+        shell.input_buffer[character_index++] = input_char;
+        shell.input_buffer[character_index]   = '\0';
+        ++shell.cursor_column;
+        if ( shell.cursor_column > shell.line_length )
+        {
+            shell.line_length = shell.cursor_column;
+        }
+        shell.dirty = true;
+        vs_invalidate_history();
+    }
 }
 
-void vs_init( vs_handle shell )
+void vs_configure( vs_get_char input_func, vs_put_char output_func )
 {
-	memset( shell, 0, sizeof( struct vs_data ) );
-	vs_clear_console( shell );
+    memset( &shell, 0, sizeof( struct vs_data ) );
+    shell.input_func  = input_func;
+    shell.output_func = output_func;
 }
 
-void vs_configure( vs_handle   shell,
-                   vs_get_char input_func,
-                   vs_output   output_func,
-                   bool        echo_enabled )
+void vs_run( void )
 {
-	shell->input_func   = input_func;
-	shell->output_func  = output_func;
-	shell->echo_enabled = echo_enabled;
+
+    int8_t input_char = shell.input_func();
+    if ( input_char < 0 )
+    {
+        return; /* for non-blocking superloop operation */
+    }
+
+    if ( shell.escape_sequence_index                /* If an escape sequence is active */
+         && process_escape_sequence( input_char ) ) /* and it is not aborted */
+    {
+        return;
+    }
+
+    switch ( input_char )
+    {
+        case 9: /* tab */
+            vs_attempt_autocomplete();
+            break;
+        case '\n':
+        case '\r':
+            /* newline characters, attempt to process command */
+            vs_process_command();
+            break;
+        case 27: /* Escape Character */
+            /* start of a new escape sequence */
+            process_escape_sequence( input_char );
+            break;
+        default:
+            /* Handle non-command characters */
+            process_received_char( input_char );
+            break;
+    }
 }
 
-void vs_run( vs_handle shell )
+void vs_clear_console( void )
 {
-
-	int8_t input_char = shell->input_func();
-	if ( input_char < 0 )
-	{
-		return; /* for non-blocking superloop operation */
-	}
-
-	if ( shell->escape_sequence_index                      /* If an escape sequence is active */
-	     && process_escape_sequence( shell, input_char ) ) /* and it is not aborted */
-	{
-		return;
-	}
-
-	switch ( input_char )
-	{
-		case 9: /* tab */
-			vs_attempt_autocomplete( shell );
-			break;
-		case '\n':
-		case '\r':
-			/* newline characters, attempt to process command */
-			vs_process_command( shell );
-			break;
-		case 27: /* Escape Character */
-			/* start of a new escape sequence */
-			process_escape_sequence( shell, input_char );
-			break;
-		default:
-			/* Handle non-command characters */
-			process_received_char( shell, input_char );
-			break;
-	}
+    shell.cursor_column = 0;
+    shell.cursor_line   = 0;
+    vs_clear_text();
+    vs_home();
 }
 
-void vs_clear_console( vs_handle shell )
+void vs_output( const char *data, size_t length )
 {
-	shell->cursor_column = 0;
-	shell->cursor_line   = 0;
-	vs_clear_text( shell );
-	vs_home( shell );
-}
-
-void vs_output_internal( const_vs_handle shell, const char *data, size_t length )
-{
-	if ( shell->echo_enabled )
-	{
-		shell->output_func( data, length );
-	}
+    for ( int index = 0; index < length; ++index )
+    {
+	  shell.output_func( data[index] );
+    }
 }

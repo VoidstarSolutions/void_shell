@@ -3,7 +3,7 @@ build/
 doxygen/
 *.user
 
-.vscode/settings.json
+.vscode/
 
 .scannerwork/
 

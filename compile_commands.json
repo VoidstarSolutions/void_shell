@@ -1,0 +1,62 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Idemo",
+      "-I./source",
+      "-DGNU_COMPILER",
+      "-c",
+      "-o",
+      "build/release/out/c/main.o",
+      "demo/main.c"
+    ],
+    "directory": "/Users/zheylmun/dev/voidstar/void_shell",
+    "file": "/Users/zheylmun/dev/voidstar/void_shell/demo/main.c",
+    "output": "/Users/zheylmun/dev/voidstar/void_shell/build/release/out/c/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Idemo",
+      "-I./source",
+      "-DGNU_COMPILER",
+      "-c",
+      "-o",
+      "build/release/out/c/void_command.o",
+      "./source/void_command.c"
+    ],
+    "directory": "/Users/zheylmun/dev/voidstar/void_shell",
+    "file": "/Users/zheylmun/dev/voidstar/void_shell/source/void_command.c",
+    "output": "/Users/zheylmun/dev/voidstar/void_shell/build/release/out/c/void_command.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Idemo",
+      "-I./source",
+      "-DGNU_COMPILER",
+      "-c",
+      "-o",
+      "build/release/out/c/void_shell.o",
+      "./source/void_shell.c"
+    ],
+    "directory": "/Users/zheylmun/dev/voidstar/void_shell",
+    "file": "/Users/zheylmun/dev/voidstar/void_shell/source/void_shell.c",
+    "output": "/Users/zheylmun/dev/voidstar/void_shell/build/release/out/c/void_shell.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Idemo",
+      "-I./source",
+      "-DGNU_COMPILER",
+      "-c",
+      "-o",
+      "build/release/out/c/void_shell_utilities.o",
+      "./source/void_shell_utilities.c"
+    ],
+    "directory": "/Users/zheylmun/dev/voidstar/void_shell",
+    "file": "/Users/zheylmun/dev/voidstar/void_shell/source/void_shell_utilities.c",
+    "output": "/Users/zheylmun/dev/voidstar/void_shell/build/release/out/c/void_shell_utilities.o"
+  }
+]

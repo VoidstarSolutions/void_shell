@@ -35,8 +35,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../third_party/cmock/vendor/unity/src/unity.h"
-#include "../third_party/printf/printf.h"
+#include "unity.h"
+#include "printf.h"
 
 
 #include "../build/test/mocks/mock_void_shell.h"

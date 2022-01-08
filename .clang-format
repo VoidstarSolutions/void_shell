@@ -25,7 +25,6 @@ SpacesInCStyleCastParentheses: 'false'
 SpacesInConditionalStatement: 'true'
 SpacesInParentheses: 'true'
 TabWidth: '4'
-UseTab: ForIndentation
 DerivePointerAlignment: 'false'
 PointerAlignment: Right
 ReflowComments: false

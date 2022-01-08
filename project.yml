@@ -4,8 +4,12 @@
   :use_test_preprocessor: TRUE
   :use_auxiliary_dependencies: FALSE
   :build_root: build
+  :release_build: TRUE
   :test_file_prefix: test_
   :which_ceedling: gem
+
+:release_build:
+  :output: demo.elf
 
 :environment:
 
@@ -14,12 +18,11 @@
 
 :paths:
   :source:
+    - demo/**
     - ./source/**
   :test:
     - ./test/**
-  :support:
-    - ./third_party/**
-  :libraries: []
+    - ./third_party/cmock/vendor/unity/src/**
 
 :defines:
   # in order to add common defines:
@@ -59,18 +62,6 @@
   :gcovr:
     # SonarQube XML report filename.
     :sonarqube_artifact_filename: sonar_coverage.xml
-
-# LIBRARIES
-# These libraries are automatically injected into the build process. Those specified as
-# common will be used in all types of builds. Otherwise, libraries can be injected in just
-# tests or releases. These options are MERGED with the options in supplemental yaml files.
-:libraries:
-  :placement: :end
-  :flag: "-l${1}"
-  :path_flag: "-L ${1}"
-  :system: [] # for example, you might list 'm' to grab the math library
-  :test: []
-  :release: []
 
 :plugins:
   :load_paths:

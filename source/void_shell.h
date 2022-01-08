@@ -32,53 +32,69 @@
 #ifndef VOID_SHELL_H
 #define VOID_SHELL_H
 
-#include "void_shell_types.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#ifndef VS_BUFFER_SIZE_POW_TWO
+/** Default buffer size of 2^8, or 256 characters */
+#define VS_BUFFER_SIZE_POW_TWO ( (size_t) 8 )
+#endif // VS_BUFFER_SIZE_POW_TWO
+
+#ifndef VS_COMMAND_HISTORY_COUNT_POW_TWO
+/** Default history length of 2^2, or 4 commands */
+#define VS_COMMAND_HISTORY_COUNT_POW_TWO ( (size_t) 2 )
+#endif // VS_COMMAND_HISTORY_COUNT_POW_TWO
+
+// Allow unit tests to call static functions
+#ifndef __TEST__
+#define VS_STATIC static
+#define VS_STATIC_INLINE static inline
+#else
+#define VS_STATIC
+#define VS_STATIC_INLINE
+#endif
 
 /**
- * @brief Initialize the memories for shell
+ * @brief Function to get next input character for shell
+ * Must be provided by console application
+ * @return Negative if not available, or ASCII value from 0-127
  **/
-void vs_init(vs_handle shell);
+typedef int8_t ( *vs_get_char )();
+
+/**
+ * @brief Ouput function to be used by shell
+ * Must be provided by console application
+ **/
+typedef void ( *vs_put_char )( char out_char );
 
 /**
  * @brief Configure a shell with the provided input function
- * 
- * @param [in,out] shell The shell to configure
- * @param [in] input_func int8_t ( *vs_get_char )() function pointer to 
+ *
+ * @param [in] input_func int8_t ( *vs_get_char )() function pointer to
  * retrieve next input character for shell
- * @param [in] output_func 
+ * @param [in] output_func
  * void ( *vs_output )( const char *data, size_t length ) function pointer
  * to handle shell output
- * @param [in] echo_enabled Whether the shell should echo typed characters,
- * newlines, and escape sequences
  **/
-void vs_configure( vs_handle   shell,
-                   vs_get_char input_func,
-                   vs_output   output_func,
-                   bool        echo_enabled );
+void vs_configure( vs_get_char input_func, vs_put_char output_func );
 
 /**
  * @brief Service CLI input
- * 
- * @param [in,out] shell Shell to service
  **/
-void vs_run( vs_handle shell );
+void vs_run();
 
 /**
  * @brief Clear the console of text and reset to first line/column
- * 
- * @param [in,out] shell Shell to clear console
  **/
-void vs_clear_console( vs_handle shell );
+void vs_clear_console();
 
 /**
- * @brief internal function to handle output from shell
- * Respects shell's echo settings.  If echo is disabled, the output function is
- * not called.
- * 
- * @param [in] shell Shell for output
+ * @brief function to handle output from shell
+ *
  * @param [in] data characters to print
  * @param [in] length number of characters to output
  **/
-void vs_output_internal( const_vs_handle shell, const char *data, size_t length );
+void vs_output( const char *data, size_t length );
 
 #endif // VOID_SHELL_H

@@ -1,1 +1,0 @@
-cmake --build ./build --config MinSizeRel --target all

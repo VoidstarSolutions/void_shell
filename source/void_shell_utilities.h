@@ -49,30 +49,34 @@ enum vs_color
 	COLOR_WHITE,
 };
 
-void vs_start_of_line( const_vs_handle shell );
+const char* vs_separator;
 
-void vs_erase_after_cursor( const_vs_handle shell );
+const char* vs_newline;
 
-void vs_left( const_vs_handle shell );
+void vs_start_of_line( void );
 
-void vs_right( const_vs_handle shell );
+void vs_erase_after_cursor( void );
 
-void vs_clear_text( const_vs_handle shell );
+void vs_left( void );
 
-void vs_home( const_vs_handle shell );
+void vs_right( void );
 
-void vs_reset_format( const_vs_handle shell );
+void vs_clear_text( void );
 
-void vs_more_bold( const_vs_handle shell );
+void vs_home( void );
 
-void vs_less_bold( const_vs_handle shell );
+void vs_reset_format( void );
 
-void vs_underline( const_vs_handle shell );
+void vs_more_bold( void );
 
-void vs_blink( const_vs_handle shell );
+void vs_less_bold( void );
 
-void vs_text_color( const_vs_handle shell, enum vs_color color );
+void vs_underline( void );
 
-void vs_background_color( const_vs_handle shell, enum vs_color );
+void vs_blink( void );
+
+void vs_text_color( enum vs_color color );
+
+void vs_background_color( enum vs_color );
 
 #endif // vs_UTILITIES_H
