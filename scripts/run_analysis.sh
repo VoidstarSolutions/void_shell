@@ -1,5 +1,9 @@
 #!/bin/sh
 
+set -e
+
+echo "--- Run Sonar-Scanner"
+
 if [[ "$BUILDKITE_PULL_REQUEST" == "false" ]]
 then
 sonar-scanner -Dsonar.branch.name=$BUILDKITE_BRANCH

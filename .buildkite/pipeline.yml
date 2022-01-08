@@ -1,9 +1,9 @@
 steps:
 
   - command:
-      - bash scripts/build_embedded_demo.sh
-    label: "Build embedded demo"
-    artifact_paths: "build/compile_commands.json"
+      - bash scripts/build_demo.sh
+    label: "Build Demo"
+    artifact_paths: "compile_commands.json"
 
   - command:
     - bash scripts/build_desktop_demo.sh
@@ -17,7 +17,8 @@ steps:
   - wait
 
   - command:
-      - buildkite-agent artifact download "build/compile_commands.json" .
+      - buildkite-agent artifact download "compile_commands.json" .
+      - buildkite-agent artifact download "build/artifacts/gcov/sonar_coverage.xml" .
       - bash scripts/run_analysis.sh
     label: "SonarCloud Analysis"
     env:
