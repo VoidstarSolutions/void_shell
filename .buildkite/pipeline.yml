@@ -9,12 +9,12 @@ steps:
       - bash scripts/run_tests.sh
     label: "Ceedling Tests"
     artifact_paths:
-      - build/artifacts/gcov/sonar_coverage.xml
+      - build/artifacts/gcov/Reportgenerator/SonarQube.xml
 
   - wait
 
   - command:
       - buildkite-agent artifact download "compile_commands.json" .
-      - buildkite-agent artifact download "build/artifacts/gcov/sonar_coverage.xml" .
+      - buildkite-agent artifact download "build/artifacts/gcov/ReportGenerator/SonarQube.xml" .
       - bash scripts/run_analysis.sh
     label: "SonarCloud Analysis"
