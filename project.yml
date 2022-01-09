@@ -57,9 +57,12 @@
 # You will need to have gcov and gcovr both installed to make it work.
 # For more information on these options, see docs in plugins/gcov
 :gcov:
+  :utilities:
+    - ReportGenerator
   :reports:
     - SonarQube
-  :gcovr:
+  :reportgenerator:
+    :report_include: "^./source"
     # SonarQube XML report filename.
     :sonarqube_artifact_filename: sonar_coverage.xml
 
@@ -70,4 +73,3 @@
     - stdout_pretty_tests_report
     - module_generator
     - gcov
-    - xml_tests_report
